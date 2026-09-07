@@ -1,0 +1,1301 @@
+<!DOCTYPE html>
+<html lang="PT-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FARPOP - GESTÃO DE RETIRADAS</title>
+  <!-- Google Fonts & FontAwesome Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --primary-light: #eff6ff;
+      --bg-gradient: linear-gradient(135deg, #f0f7ff 0%, #e0f2fe 100%);
+      --card-bg: rgba(255, 255, 255, 0.95);
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      
+      --success: #10b981;
+      --success-bg: #ecfdf5;
+      --warning: #f59e0b;
+      --warning-bg: #fffbeb;
+      --danger: #ef4444;
+      --danger-bg: #fef2f2;
+      
+      --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
+      --shadow-md: 0 10px 25px -5px rgba(37, 99, 235, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
+      --radius: 16px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      text-transform: uppercase;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background: var(--bg-gradient);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      padding: 20px 14px 40px 14px;
+    }
+
+    .app-container {
+      width: 100%;
+      max-width: 580px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    /* Header Styling */
+    header {
+      background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%);
+      color: white;
+      padding: 24px 20px;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-md);
+      position: relative;
+      overflow: hidden;
+    }
+
+    header::after {
+      content: '';
+      position: absolute;
+      top: -30%;
+      right: -10%;
+      width: 140px;
+      height: 140px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+
+    .header-content {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .header-icon {
+      width: 48px;
+      height: 48px;
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(10px);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+    }
+
+    .header-text h1 {
+      font-size: 1.35rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+
+    .header-text p {
+      font-size: 0.85rem;
+      opacity: 0.9;
+      margin-top: 2px;
+    }
+
+    /* Notification Banner */
+    .notif-banner {
+      background: #ffffff;
+      border: 1px solid #bfdbfe;
+      border-left: 5px solid var(--primary);
+      border-radius: 12px;
+      padding: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .notif-text {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.82rem;
+      color: #1e3a8a;
+      font-weight: 700;
+    }
+
+    .btn-notif {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 0.8rem;
+      cursor: pointer;
+      box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2);
+    }
+
+    .btn-test-notif {
+      background: #059669;
+      color: white;
+      border: none;
+      padding: 10px 14px;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 0.8rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      width: 100%;
+      justify-content: center;
+    }
+
+    /* Card Box */
+    .card {
+      background: var(--card-bg);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.8);
+      border-radius: var(--radius);
+      padding: 20px;
+      box-shadow: var(--shadow-md);
+    }
+
+    .card-title {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: var(--text-main);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .card-title-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .card-title i {
+      color: var(--primary);
+    }
+
+    /* Form Design */
+    .form-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    label {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: #334155;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      font-size: 0.92rem;
+      background: #f8fafc;
+      color: var(--text-main);
+      transition: all 0.2s ease;
+      outline: none;
+      font-weight: 600;
+    }
+
+    input:focus, select:focus {
+      background: #ffffff;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+    }
+
+    /* Checkbox list styles */
+    .checkbox-group {
+      display: flex;
+      gap: 12px;
+      background: #f8fafc;
+      padding: 10px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+    }
+
+    .checkbox-label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 700;
+      user-select: none;
+    }
+
+    .checkbox-label input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--primary);
+      cursor: pointer;
+    }
+
+    /* Sublist for Medicines */
+    .sublist-container {
+      background: #f1f5f9;
+      border-radius: 12px;
+      padding: 12px;
+      border: 1px dashed #cbd5e1;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .sublist-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 4px;
+    }
+
+    .sublist-title {
+      font-size: 0.78rem;
+      font-weight: 800;
+      color: #1e3a8a;
+    }
+
+    .btn-select-all {
+      background: #dbeafe;
+      color: var(--primary);
+      border: 1px solid #bfdbfe;
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 0.70rem;
+      font-weight: 800;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-select-all:hover {
+      background: var(--primary);
+      color: white;
+    }
+
+    .sublist-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    /* Dynamic Area for Diaper Fields */
+    .diaper-fields {
+      background: #f1f5f9;
+      border-radius: 12px;
+      padding: 12px;
+      border: 1px dashed #cbd5e1;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .btn-submit {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-weight: 800;
+      font-size: 1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+      transition: transform 0.1s ease, box-shadow 0.2s;
+      margin-top: 6px;
+    }
+
+    .btn-submit:active {
+      transform: scale(0.98);
+    }
+
+    .btn-toggle-card {
+      background: var(--primary-light);
+      color: var(--primary);
+      border: 1px solid #bfdbfe;
+      padding: 10px 16px;
+      border-radius: 10px;
+      font-weight: 800;
+      font-size: 0.85rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      width: 100%;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+
+    .btn-toggle-card:hover {
+      background: #dbeafe;
+    }
+
+    /* Recipe Section Headers & Card Wrapper */
+    .recipe-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .recipe-header {
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--primary);
+      padding: 12px 14px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .recipe-info {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .recipe-date {
+      font-size: 0.85rem;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+
+    .recipe-validity {
+      font-size: 0.74rem;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    /* Table & Storage List Formatting */
+    .table-container {
+      width: 100%;
+      overflow-x: auto;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: #ffffff;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.82rem;
+      table-layout: fixed;
+    }
+
+    th {
+      background: #f8fafc;
+      color: var(--text-muted);
+      font-weight: 800;
+      padding: 12px 10px;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.70rem;
+      letter-spacing: 0.05em;
+    }
+
+    td {
+      padding: 12px 10px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+      word-wrap: break-word;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    /* Optimized Column Widths */
+    .col-item { width: 45%; }
+    .col-data { width: 25%; }
+    .col-status { width: 25%; }
+    .col-acao { width: 10%; text-align: right; }
+
+    tr.alert-expired { background-color: var(--danger-bg); }
+    tr.alert-today { background-color: #fefce8; }
+    tr.alert-tomorrow { background-color: var(--warning-bg); }
+
+    .badge-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 800;
+      color: var(--text-main);
+      font-size: 0.8rem;
+    }
+
+    .badge-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 6px;
+      border-radius: 6px;
+      font-size: 0.68rem;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .badge-ok { background: var(--success-bg); color: var(--success); }
+    .badge-warning { background: var(--warning-bg); color: var(--warning); }
+    .badge-danger { background: var(--danger-bg); color: var(--danger); }
+    .badge-today-style { background: #fef08a; color: #854d0e; }
+
+    .sub-detail {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      margin-top: 2px;
+      display: block;
+      font-weight: 600;
+      line-height: 1.2;
+    }
+
+    .med-list-detail {
+      margin-top: 4px;
+      padding-left: 6px;
+      border-left: 2px solid var(--primary);
+      font-size: 0.70rem;
+      color: #334155;
+    }
+
+    .actions-cell {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 4px;
+    }
+
+    .btn-action {
+      background: none;
+      border: none;
+      font-size: 1rem;
+      cursor: pointer;
+      padding: 5px;
+      border-radius: 6px;
+      transition: all 0.2s;
+    }
+
+    .btn-check {
+      color: var(--success);
+      background: var(--success-bg);
+    }
+
+    .btn-check:hover {
+      background: #d1fae5;
+      transform: scale(1.1);
+    }
+
+    .btn-delete { color: #94a3b8; }
+    .btn-delete:hover { color: var(--danger); background: #fee2e2; }
+
+    .empty-state {
+      text-align: center;
+      padding: 30px 10px;
+      color: var(--text-muted);
+    }
+
+    .empty-state i {
+      font-size: 2.5rem;
+      margin-bottom: 8px;
+      opacity: 0.4;
+    }
+
+    /* Modal Styling for Custom Alerts */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(15, 23, 42, 0.5);
+      backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal-box {
+      background: #ffffff;
+      width: 90%;
+      max-width: 400px;
+      border-radius: 20px;
+      padding: 24px;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+      transform: scale(0.95);
+      transition: transform 0.2s ease;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 14px;
+    }
+
+    .modal-overlay.active .modal-box {
+      transform: scale(1);
+    }
+
+    .modal-icon {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.6rem;
+    }
+
+    .modal-icon.warning { background: var(--warning-bg); color: var(--warning); }
+    .modal-icon.danger { background: var(--danger-bg); color: var(--danger); }
+    .modal-icon.info { background: var(--primary-light); color: var(--primary); }
+
+    .modal-title {
+      font-size: 1rem;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+
+    .modal-message {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      font-weight: 600;
+      line-height: 1.4;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 10px;
+      width: 100%;
+      margin-top: 6px;
+    }
+
+    .btn-modal {
+      flex: 1;
+      padding: 12px;
+      border-radius: 10px;
+      border: none;
+      font-weight: 800;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-modal-primary {
+      background: var(--primary);
+      color: white;
+    }
+
+    .btn-modal-danger {
+      background: var(--danger);
+      color: white;
+    }
+
+    .btn-modal-secondary {
+      background: #f1f5f9;
+      color: var(--text-muted);
+    }
+
+    @media (max-width: 480px) {
+      body { padding: 12px 8px 30px 8px; }
+      .card { padding: 14px; }
+      .form-row { grid-template-columns: 1fr; }
+      th, td { padding: 10px 6px; }
+      .col-item { width: 36%; }
+      .col-data { width: 22%; }
+      .col-status { width: 28%; }
+      .col-acao { width: 14%; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app-container">
+    
+    <!-- Top Header -->
+    <header>
+      <div class="header-content">
+        <div class="header-icon">
+          <i class="fa-solid fa-prescription-bottle-medical"></i>
+        </div>
+        <div class="header-text">
+          <h1>FARPOP</h1>
+          <p>GESTÃO DE RETIRADA DE MEDICAMENTOS E FRALDAS NA FARMÁCIA POPULAR</p>
+        </div>
+      </div>
+    </header>
+
+    <!-- Notification Request Banner -->
+    <div id="notifBanner" class="notif-banner" style="display: none;">
+      <div class="notif-text">
+        <i class="fa-solid fa-bell-ring fa-lg" style="color: var(--primary);"></i>
+        <span>ATIVE OS ALERTAS PARA LEMBRETES DE RETIRADA.</span>
+      </div>
+      <button class="btn-notif" onclick="requestNotificationPermission()">ATIVAR</button>
+    </div>
+
+    <!-- Test Button for Smartphone -->
+    <button class="btn-test-notif" onclick="sendTestNotification()">
+      <i class="fa-solid fa-vial"></i> TESTAR NOTIFICAÇÃO NO SMARTPHONE AGORA
+    </button>
+
+    <!-- Card Cadastrar Receita -->
+    <div class="card">
+      <div class="card-title">
+        <div class="card-title-left">
+          <i class="fa-solid fa-file-prescription"></i>
+          <span>RECEITA MÉDICA</span>
+        </div>
+      </div>
+      
+      <button class="btn-toggle-card" onclick="toggleRecipeForm()">
+        <i class="fa-solid fa-plus"></i> CADASTRAR RECEITA
+      </button>
+
+      <form id="recipeForm" class="form-grid" style="display: none; margin-top: 14px;">
+        <div class="form-group">
+          <label for="recipeDate"><i class="fa-solid fa-calendar-check"></i> DATA DA RECEITA</label>
+          <input type="date" id="recipeDate" required>
+        </div>
+        <button type="submit" class="btn-submit" style="background: linear-gradient(135deg, #059669 0%, #047857 100%);">
+          <i class="fa-solid fa-floppy-disk"></i> SALVAR NOVA RECEITA
+        </button>
+      </form>
+    </div>
+
+    <!-- Registration Card -->
+    <div class="card">
+      <div class="card-title">
+        <div class="card-title-left">
+          <i class="fa-solid fa-circle-plus"></i>
+          <span>NOVA RETIRADA</span>
+        </div>
+      </div>
+
+      <form id="recordForm" class="form-grid">
+        
+        <div class="form-group">
+          <label for="pharmacyName"><i class="fa-solid fa-store"></i> FARMÁCIA</label>
+          <select id="pharmacyName" required>
+            <option value="" disabled selected>SELECIONE A FARMÁCIA</option>
+            <option value="PACHECO">PACHECO</option>
+            <option value="PAGUE MENOS">PAGUE MENOS</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label><i class="fa-solid fa-box"></i> ITEM</label>
+          <div class="checkbox-group">
+            <label class="checkbox-label">
+              <input type="checkbox" id="chkDiapers" onchange="toggleItemFields()"> FRALDAS
+            </label>
+            <label class="checkbox-label">
+              <input type="checkbox" id="chkMeds" onchange="toggleItemFields()"> MEDICAMENTOS
+            </label>
+          </div>
+        </div>
+
+        <!-- Sublist for Medicines -->
+        <div id="medsSublist" class="sublist-container" style="display: none;">
+          <div class="sublist-header">
+            <span class="sublist-title"><i class="fa-solid fa-pills"></i> SELEÇÃO DE MEDICAMENTOS:</span>
+            <button type="button" class="btn-select-all" id="btnSelectAllMeds" onclick="toggleSelectAllMeds()">MARCAR TODOS</button>
+          </div>
+          <div class="sublist-grid">
+            <label class="checkbox-label">
+              <input type="checkbox" class="chk-med-item" value="HIDROCLOROTIAZIDA 25mg (1 CAIXA)"> HIDROCLOROTIAZIDA 25mg (1 CAIXA)
+            </label>
+            <label class="checkbox-label">
+              <input type="checkbox" class="chk-med-item" value="GLIBENCLAMIDA 5mg (4 CAIXAS)"> GLIBENCLAMIDA 5mg (4 CAIXAS)
+            </label>
+            <label class="checkbox-label">
+              <input type="checkbox" class="chk-med-item" value="LOSARTANA 50mg (2 CAIXAS)"> LOSARTANA 50mg (2 CAIXAS)
+            </label>
+            <label class="checkbox-label">
+              <input type="checkbox" class="chk-med-item" value="METFORMINA 500mg (4 CAIXAS)"> METFORMINA 500mg (4 CAIXAS)
+            </label>
+            <label class="checkbox-label">
+              <input type="checkbox" class="chk-med-item" value="SINVASTATINA 20mg (1 CAIXA)"> SINVASTATINA 20mg (1 CAIXA)
+            </label>
+          </div>
+        </div>
+
+        <!-- Dynamic Diaper Options -->
+        <div id="diaperFields" class="diaper-fields" style="display: none;">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="diaperBrand"><i class="fa-solid fa-tag"></i> MARCA DA FRALDA</label>
+              <input type="text" id="diaperBrand">
+            </div>
+            <div class="form-group">
+              <label for="diaperQty"><i class="fa-solid fa-layer-group"></i> QTD.</label>
+              <input type="number" id="diaperQty">
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="retrievalDate"><i class="fa-solid fa-calendar-day"></i> DATA</label>
+          <input type="date" id="retrievalDate" required>
+        </div>
+
+        <button type="submit" class="btn-submit">
+          <i class="fa-solid fa-floppy-disk"></i> REGISTRAR RETIRADA
+        </button>
+      </form>
+    </div>
+
+    <!-- Storage History Section View -->
+    <div id="historyContainer">
+      <!-- Dynamic Recipe Cards & Tables -->
+    </div>
+
+  </div>
+
+  <!-- Custom Alert / Modal Overlay -->
+  <div id="customModal" class="modal-overlay">
+    <div class="modal-box">
+      <div id="modalIcon" class="modal-icon warning">
+        <i id="modalIconI" class="fa-solid fa-triangle-exclamation"></i>
+      </div>
+      <div id="modalTitle" class="modal-title">ATENÇÃO</div>
+      <div id="modalMessage" class="modal-message">Mensagem de alerta aqui...</div>
+      <div id="modalActions" class="modal-actions">
+        <button id="modalBtnOk" class="btn-modal btn-modal-primary" onclick="closeCustomModal()">ENTENDIDO</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const form = document.getElementById('recordForm');
+    const recipeForm = document.getElementById('recipeForm');
+    const historyContainer = document.getElementById('historyContainer');
+    const retrievalDateInput = document.getElementById('retrievalDate');
+    const recipeDateInput = document.getElementById('recipeDate');
+    const diaperFields = document.getElementById('diaperFields');
+    const medsSublist = document.getElementById('medsSublist');
+    const notifBanner = document.getElementById('notifBanner');
+
+    const chkDiapers = document.getElementById('chkDiapers');
+    const chkMeds = document.getElementById('chkMeds');
+
+    retrievalDateInput.valueAsDate = new Date();
+    recipeDateInput.valueAsDate = new Date();
+
+    let recipes = JSON.parse(localStorage.getItem('farmacia_popular_recipes')) || [];
+    let records = JSON.parse(localStorage.getItem('farmacia_popular_records')) || [];
+    let pendingConfirmCallback = null;
+
+    /* Custom Modal Helper Functions */
+    function showAlert(title, message, type = 'warning') {
+      const modal = document.getElementById('customModal');
+      const iconBox = document.getElementById('modalIcon');
+      const iconI = document.getElementById('modalIconI');
+      const titleEl = document.getElementById('modalTitle');
+      const msgEl = document.getElementById('modalMessage');
+      const actionsEl = document.getElementById('modalActions');
+
+      titleEl.innerText = title;
+      msgEl.innerText = message;
+
+      iconBox.className = `modal-icon ${type}`;
+      if (type === 'warning') iconI.className = 'fa-solid fa-triangle-exclamation';
+      else if (type === 'danger') iconI.className = 'fa-solid fa-circle-exclamation';
+      else iconI.className = 'fa-solid fa-circle-info';
+
+      actionsEl.innerHTML = `
+        <button class="btn-modal btn-modal-primary" onclick="closeCustomModal()">ENTENDIDO</button>
+      `;
+
+      modal.classList.add('active');
+    }
+
+    function showConfirm(title, message, onConfirm) {
+      const modal = document.getElementById('customModal');
+      const iconBox = document.getElementById('modalIcon');
+      const iconI = document.getElementById('modalIconI');
+      const titleEl = document.getElementById('modalTitle');
+      const msgEl = document.getElementById('modalMessage');
+      const actionsEl = document.getElementById('modalActions');
+
+      titleEl.innerText = title;
+      msgEl.innerText = message;
+
+      iconBox.className = 'modal-icon danger';
+      iconI.className = 'fa-solid fa-trash-can';
+
+      pendingConfirmCallback = onConfirm;
+
+      actionsEl.innerHTML = `
+        <button class="btn-modal btn-modal-secondary" onclick="closeCustomModal()">CANCELAR</button>
+        <button class="btn-modal btn-modal-danger" onclick="executeConfirm()">EXCLUIR</button>
+      `;
+
+      modal.classList.add('active');
+    }
+
+    function closeCustomModal() {
+      document.getElementById('customModal').classList.remove('active');
+      pendingConfirmCallback = null;
+    }
+
+    function executeConfirm() {
+      if (pendingConfirmCallback) {
+        pendingConfirmCallback();
+      }
+      closeCustomModal();
+    }
+
+    function toggleRecipeForm() {
+      recipeForm.style.display = recipeForm.style.display === 'none' ? 'flex' : 'none';
+    }
+
+    function toggleItemFields() {
+      diaperFields.style.display = chkDiapers.checked ? 'flex' : 'none';
+      medsSublist.style.display = chkMeds.checked ? 'flex' : 'none';
+    }
+
+    function toggleSelectAllMeds() {
+      const medCheckboxes = document.querySelectorAll('.chk-med-item');
+      const btn = document.getElementById('btnSelectAllMeds');
+      const allChecked = Array.from(medCheckboxes).every(cb => cb.checked);
+
+      medCheckboxes.forEach(cb => cb.checked = !allChecked);
+      btn.innerText = allChecked ? "MARCAR TODOS" : "DESMARCAR TODOS";
+    }
+
+    function requestNotificationPermission() {
+      if ("Notification" in window) {
+        Notification.requestPermission().then(permission => {
+          if (permission === "granted") {
+            notifBanner.style.display = 'none';
+            checkAlertsAndNotify();
+          } else {
+            showAlert("PERMISSÃO NEGADA", "A PERMISSÃO DE NOTIFICAÇÃO FOI NEGADA NAS CONFIGURAÇÕES DO NAVEGADOR.", "danger");
+          }
+        });
+      } else {
+        showAlert("NÃO SUPORTADO", "SEU NAVEGADOR NÃO SUPORTA NOTIFICAÇÕES WEB.", "warning");
+      }
+    }
+
+    function sendTestNotification() {
+      if (!("Notification" in window)) {
+        showAlert("NÃO SUPORTADO", "SEU NAVEGADOR NÃO SUPORTA NOTIFICAÇÕES.", "warning");
+        return;
+      }
+
+      if (Notification.permission === "granted") {
+        new Notification("TESTE DE NOTIFICAÇÃO - FARMÁCIA POPULAR", {
+          body: "FUNCIONANDO PERFEITAMENTE NO SEU DISPOSITIVO!",
+          icon: "https://cdn-icons-png.flaticon.com/512/3063/3063822.png"
+        });
+      } else {
+        requestNotificationPermission();
+      }
+    }
+
+    function checkNotificationPermission() {
+      if ("Notification" in window && Notification.permission === "default") {
+        notifBanner.style.display = 'flex';
+      } else {
+        notifBanner.style.display = 'none';
+      }
+    }
+
+    function saveAndRender() {
+      localStorage.setItem('farmacia_popular_recipes', JSON.stringify(recipes));
+      localStorage.setItem('farmacia_popular_records', JSON.stringify(records));
+      renderHistory();
+      checkAlertsAndNotify();
+    }
+
+    function formatDate(dateStr) {
+      if (!dateStr) return '';
+      const [year, month, day] = dateStr.split('-');
+      return `${day}/${month}/${year}`;
+    }
+
+    function getNextDateObject(dateStr, days) {
+      const parts = dateStr.split('-');
+      const date = new Date(parts[0], parts[1] - 1, parts[2]);
+      date.setDate(date.getDate() + days);
+      date.setHours(0, 0, 0, 0);
+      return date;
+    }
+
+    function getDaysRemaining(targetDate) {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const diffTime = targetDate - today;
+      return Math.round(diffTime / (1000 * 60 * 60 * 24));
+    }
+
+    function getRecipeStatus(recipe, isLatest) {
+      const startDate = new Date(recipe.date + 'T00:00:00');
+      const expirationDate = new Date(startDate);
+      expirationDate.setDate(expirationDate.getDate() + 180);
+      
+      const daysUntilExpiration = getDaysRemaining(expirationDate);
+
+      if (!isLatest || daysUntilExpiration < 0) {
+        return { label: 'RECEITA VENCIDA', class: 'badge-danger', expDate: expirationDate };
+      } else if (daysUntilExpiration <= 20) {
+        return { label: 'RENOVAR RECEITA', class: 'badge-warning', expDate: expirationDate };
+      } else {
+        return { label: 'RECEITA VIGENTE', class: 'badge-ok', expDate: expirationDate };
+      }
+    }
+
+    function renderHistory() {
+      historyContainer.innerHTML = '';
+
+      if (recipes.length === 0 && records.length === 0) {
+        historyContainer.innerHTML = `
+          <div class="card">
+            <div class="empty-state">
+              <i class="fa-solid fa-inbox"></i>
+              <p>NENHUMA RECEITA OU RETIRADA REGISTRADA.</p>
+            </div>
+          </div>`;
+        return;
+      }
+
+      const sortedRecipes = [...recipes].sort((a, b) => new Date(b.date) - new Date(a.date));
+
+      sortedRecipes.forEach((recipe, recipeIndex) => {
+        const isLatest = recipeIndex === 0;
+        const statusInfo = getRecipeStatus(recipe, isLatest);
+        
+        const card = document.createElement('div');
+        card.className = 'card recipe-wrapper';
+
+        const recipeRetrievs = records.filter(r => r.recipeId === recipe.id);
+
+        let tableRowsHtml = '';
+
+        if (recipeRetrievs.length === 0) {
+          tableRowsHtml = `
+            <tr>
+              <td colspan="4">
+                <div class="empty-state" style="padding: 15px;">
+                  <p>NENHUMA RETIRADA REGISTRADA NESTA RECEITA.</p>
+                </div>
+              </td>
+            </tr>`;
+        } else {
+          recipeRetrievs.forEach((rec) => {
+            const originalIndex = records.findIndex(r => r === rec);
+            const daysToAdd = rec.itemType === 'FRALDAS' ? 11 : 31;
+            const nextDateObj = getNextDateObject(rec.date, daysToAdd);
+            const daysRemaining = getDaysRemaining(nextDateObj);
+
+            const dayFormatted = String(nextDateObj.getDate()).padStart(2, '0');
+            const monthFormatted = String(nextDateObj.getMonth() + 1).padStart(2, '0');
+            const yearFormatted = nextDateObj.getFullYear();
+            const nextDateStr = `${dayFormatted}/${monthFormatted}/${yearFormatted}`;
+
+            let trClass = '';
+            let badgeHtml = '';
+            let checkBtnHtml = '';
+
+            if (rec.completed) {
+              badgeHtml = '<span class="badge-status badge-ok"><i class="fa-solid fa-circle-check"></i> OK</span>';
+            } else if (daysRemaining < 0) {
+              trClass = 'alert-expired';
+              badgeHtml = '<span class="badge-status badge-danger"><i class="fa-solid fa-circle-exclamation"></i> ATRASADA</span>';
+              checkBtnHtml = `
+                <button class="btn-action btn-check" onclick="markAsCompleted(${originalIndex})" title="MARCAR COMO CONCLUÍDO (OK)">
+                  <i class="fa-solid fa-circle-check"></i>
+                </button>`;
+            } else if (daysRemaining === 0) {
+              trClass = 'alert-today';
+              badgeHtml = '<span class="badge-status badge-today-style"><i class="fa-solid fa-calendar-check"></i> HOJE</span>';
+            } else if (daysRemaining === 1) {
+              trClass = 'alert-tomorrow';
+              badgeHtml = '<span class="badge-status badge-warning"><i class="fa-solid fa-clock"></i> AMANHÃ</span>';
+            } else {
+              badgeHtml = `<span class="badge-status badge-ok"><i class="fa-solid fa-circle-check"></i> EM ${daysRemaining} DIAS</span>`;
+            }
+
+            let detailsHtml = `<span class="sub-detail"><i class="fa-solid fa-store"></i> ${rec.pharmacy}</span>`;
+            
+            if (rec.itemType === 'FRALDAS') {
+              if (rec.brand) detailsHtml += `<span class="sub-detail"><i class="fa-solid fa-tag"></i> ${rec.brand}</span>`;
+              if (rec.qty) detailsHtml += `<span class="sub-detail"><i class="fa-solid fa-layer-group"></i> ${rec.qty} UN</span>`;
+            }
+
+            if (rec.itemType === 'MEDICAMENTOS' && rec.selectedMeds && rec.selectedMeds.length > 0) {
+              detailsHtml += `<div class="med-list-detail">` + rec.selectedMeds.map(m => `• ${m}`).join('<br>') + `</div>`;
+            }
+
+            const iconHeader = rec.itemType === 'FRALDAS' ? '<i class="fa-solid fa-baby" style="color: #0284c7;"></i>' : '<i class="fa-solid fa-pills" style="color: #059669;"></i>';
+
+            tableRowsHtml += `
+              <tr class="${trClass}">
+                <td class="col-item">
+                  <div class="badge-item">${iconHeader} ${rec.itemType}</div>
+                  ${detailsHtml}
+                </td>
+                <td class="col-data">
+                  <div style="font-weight: 700;">RETIRADA</div>
+                  <span class="sub-detail">${formatDate(rec.date)}</span>
+                </td>
+                <td class="col-status">
+                  <div style="font-weight: 800; color: #1e293b;">${nextDateStr}</div>
+                  ${badgeHtml}
+                </td>
+                <td class="col-acao">
+                  <div class="actions-cell">
+                    ${checkBtnHtml}
+                    <button class="btn-action btn-delete" onclick="deleteRecord(${originalIndex})" title="EXCLUIR">
+                      <i class="fa-solid fa-trash-can"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            `;
+          });
+        }
+
+        card.innerHTML = `
+          <div class="recipe-header">
+            <div class="recipe-info">
+              <div class="recipe-date"><i class="fa-solid fa-file-prescription"></i> RECEITA DE: ${formatDate(recipe.date)}</div>
+              <div class="recipe-validity">VALIDADE ATÉ: ${formatDate(statusInfo.expDate.toISOString().split('T')[0])}</div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span class="badge-status ${statusInfo.class}">${statusInfo.label}</span>
+              <button class="btn-action btn-delete" onclick="deleteRecipe('${recipe.id}')" title="EXCLUIR RECEITA">
+                <i class="fa-solid fa-trash-can"></i>
+              </button>
+            </div>
+          </div>
+
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th class="col-item">ITEM</th>
+                  <th class="col-data">DATA</th>
+                  <th class="col-status">STATUS</th>
+                  <th class="col-acao">AÇÃO</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${tableRowsHtml}
+              </tbody>
+            </table>
+          </div>
+        `;
+
+        historyContainer.appendChild(card);
+      });
+    }
+
+    function checkAlertsAndNotify() {
+      if ("Notification" in window && Notification.permission === "granted") {
+        const todayStr = new Date().toISOString().split('T')[0];
+
+        records.forEach(rec => {
+          if (rec.completed) return;
+
+          const daysToAdd = rec.itemType === 'FRALDAS' ? 11 : 31;
+          const nextDateObj = getNextDateObject(rec.date, daysToAdd);
+          const daysRemaining = getDaysRemaining(nextDateObj);
+
+          const notifKey = `notif_${rec.date}_${rec.pharmacy}_${rec.itemType}_${todayStr}`;
+
+          if (daysRemaining === 1 && !localStorage.getItem(`${notifKey}_1day`)) {
+            new Notification("FARMÁCIA POPULAR - LEVANTA ALERTA", {
+              body: `AMANHÃ VENCE O PRAZO PARA RETIRAR ${rec.itemType} NA FARMÁCIA!`,
+              icon: "https://cdn-icons-png.flaticon.com/512/3063/3063822.png"
+            });
+            localStorage.setItem(`${notifKey}_1day`, 'true');
+          } 
+          else if (daysRemaining === 0 && !localStorage.getItem(`${notifKey}_today`)) {
+            new Notification("FARMÁCIA POPULAR - HOJE É O DIA", {
+              body: `HOJE É O DIA DE RETIRAR ${rec.itemType} NA FARMÁCIA!`,
+              icon: "https://cdn-icons-png.flaticon.com/512/3063/3063822.png"
+            });
+            localStorage.setItem(`${notifKey}_today`, 'true');
+          } 
+          else if (daysRemaining < 0 && !localStorage.getItem(`${notifKey}_expired`)) {
+            new Notification("FARMÁCIA POPULAR - RETIRADA ATRASADA!", {
+              body: `SUA RETIRADA DE ${rec.itemType} NA FARMÁCIA ESTÁ ATRASADA! MARQUE OK AO RETIRAR.`,
+              icon: "https://cdn-icons-png.flaticon.com/512/3063/3063822.png"
+            });
+            localStorage.setItem(`${notifKey}_expired`, 'true');
+          }
+        });
+      }
+    }
+
+    function markAsCompleted(index) {
+      records[index].completed = true;
+      saveAndRender();
+    }
+
+    function deleteRecord(index) {
+      showConfirm("ATENÇÃO, EXCLUIR RETIRADA!", "TEM CERTEZA QUE DESEJA EXCLUIR ESTE REGISTRO?", () => {
+        records.splice(index, 1);
+        saveAndRender();
+      });
+    }
+
+    function deleteRecipe(id) {
+      showConfirm("ATENÇÃO, EXCLUIR RECEITA!", "TEM CERTEZA QUE DESEJA EXCLUIR ESTA RECEITA? TODAS AS RETIRADAS ASSOCIADAS A ELA SERÃO REMOVIDAS.", () => {
+        recipes = recipes.filter(r => r.id !== id);
+        records = records.filter(r => r.recipeId !== id);
+        saveAndRender();
+      });
+    }
+
+    // Cadastro de Nova Receita
+    recipeForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const date = recipeDateInput.value;
+      
+      const newRecipe = {
+        id: 'rec_' + Date.now(),
+        date: date
+      };
+
+      recipes.push(newRecipe);
+      saveAndRender();
+
+      recipeForm.reset();
+      recipeDateInput.valueAsDate = new Date();
+      toggleRecipeForm();
+    });
+
+    // Cadastro de Nova Retirada
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+
+      if (recipes.length === 0) {
+        showAlert("ATENÇÃO, RECEITA OBRIGATÓRIA!", "NÃO É POSSÍVEL REGISTRAR UMA RETIRADA SEM UMA RECEITA CADASTRADA. POR FAVOR, CADASTRE UMA RECEITA PRIMEIRO.", "warning");
+        return;
+      }
+
+      if (!chkDiapers.checked && !chkMeds.checked) {
+        showAlert("ATENÇÃO, SELEÇÃO PENDENTE!", "POR FAVOR, SELECIONE AO MENOS UM ITEM (FRALDAS OU MEDICAMENTOS).", "warning");
+        return;
+      }
+
+      const selectedMeds = [];
+      if (chkMeds.checked) {
+        document.querySelectorAll('.chk-med-item:checked').forEach(item => {
+          selectedMeds.push(item.value);
+        });
+        if (selectedMeds.length === 0) {
+          showAlert("ATENÇÃO, SELEÇÃO PENDENTE!", "POR FAVOR, SELECIONE AO MENOS UM MEDICAMENTO DA LISTA.", "warning");
+          return;
+        }
+      }
+
+      const pharmacy = document.getElementById('pharmacyName').value;
+      const date = retrievalDateInput.value;
+      const brand = document.getElementById('diaperBrand').value.trim();
+      const qty = document.getElementById('diaperQty').value.trim();
+
+      const sortedRecipes = [...recipes].sort((a, b) => new Date(b.date) - new Date(a.date));
+      const latestRecipeId = sortedRecipes[0].id;
+
+      if (chkDiapers.checked) {
+        records.push({
+          recipeId: latestRecipeId,
+          pharmacy,
+          itemType: 'FRALDAS',
+          date,
+          brand,
+          qty,
+          selectedMeds: [],
+          completed: false
+        });
+      }
+
+      if (chkMeds.checked) {
+        records.push({
+          recipeId: latestRecipeId,
+          pharmacy,
+          itemType: 'MEDICAMENTOS',
+          date,
+          brand: '',
+          qty: '',
+          selectedMeds,
+          completed: false
+        });
+      }
+
+      saveAndRender();
+
+      form.reset();
+      retrievalDateInput.valueAsDate = new Date();
+      chkDiapers.checked = false;
+      chkMeds.checked = false;
+      document.querySelectorAll('.chk-med-item').forEach(i => i.checked = false);
+      document.getElementById('btnSelectAllMeds').innerText = "MARCAR TODOS";
+      toggleItemFields();
+    });
+
+    // Init App
+    checkNotificationPermission();
+    renderHistory();
+  </script>
+</body>
+</html>
