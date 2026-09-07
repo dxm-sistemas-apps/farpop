@@ -1024,7 +1024,38 @@
         const card = document.createElement('div');
         card.className = 'card recipe-wrapper';
 
-        const recipeRetrievs = records.filter(r => r.recipeId === recipe.id);
+        // Mapeia os registros vinculados à receita mantendo o índice original de 'records'
+        const recipeRetrievs = records
+          .map((rec, originalIndex) => ({ ...rec, originalIndex }))
+          .filter(rec => rec.recipeId === recipe.id);
+
+        // Ordenação solicitada: Atrasadas -> No Dia -> Próximas Datas -> Concluídos (OK) ao final
+        recipeRetrievs.sort((a, b) => {
+          if (a.completed !== b.completed) {
+            return a.completed ? 1 : -1;
+          }
+
+          const daysToAddA = a.itemType === 'FRALDAS' ? 11 : 31;
+          const daysToAddB = b.itemType === 'FRALDAS' ? 11 : 31;
+
+          const daysA = getDaysRemaining(getNextDateObject(a.date, daysToAddA));
+          const daysB = getDaysRemaining(getNextDateObject(b.date, daysToAddB));
+
+          const getCategoryRank = (days) => {
+            if (days < 0) return 1; // Atrasadas
+            if (days === 0) return 2; // No dia
+            return 3; // Próximas datas
+          };
+
+          const rankA = getCategoryRank(daysA);
+          const rankB = getCategoryRank(daysB);
+
+          if (rankA !== rankB) {
+            return rankA - rankB;
+          }
+
+          return daysA - daysB;
+        });
 
         let tableRowsHtml = '';
 
@@ -1039,7 +1070,7 @@
             </tr>`;
         } else {
           recipeRetrievs.forEach((rec) => {
-            const originalIndex = records.findIndex(r => r === rec);
+            const originalIndex = rec.originalIndex;
             const daysToAdd = rec.itemType === 'FRALDAS' ? 11 : 31;
             const nextDateObj = getNextDateObject(rec.date, daysToAdd);
             const daysRemaining = getDaysRemaining(nextDateObj);
