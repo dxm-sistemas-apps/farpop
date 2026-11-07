@@ -1,0 +1,25 @@
+{
+  "name": "farpop",
+  "version": "1.0.0",
+  "private": true,
+  "description": "FARPOP - Gestão de retiradas na Farmácia Popular (PWA + APK com sincronização)",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "icons": "python3 scripts/gen_icons.py",
+    "android": "npm run build && (test -d android || npx cap add android) && bash scripts/android-prepare.sh && npx cap sync android",
+    "deploy": "npm run build && npx firebase-tools deploy --only hosting,firestore:rules"
+  },
+  "dependencies": {
+    "@capacitor/android": "^6.0.0",
+    "@capacitor/core": "^6.0.0",
+    "@capacitor/filesystem": "^6.0.0",
+    "@capacitor/local-notifications": "^6.0.0",
+    "@capacitor/share": "^6.0.0",
+    "firebase": "^10.12.0"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^6.0.0",
+    "@fortawesome/fontawesome-free": "^6.5.0",
+    "esbuild": "^0.24.0"
+  }
+}

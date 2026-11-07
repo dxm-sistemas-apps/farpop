@@ -1,0 +1,10 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Cada grupo de aparelhos usa UM documento cujo ID é um código secreto longo.
+    // Sem listagem e sem exclusão: só acessa quem conhece o código de pareamento.
+    match /farpop/{code} {
+      allow get, create, update: if request.auth != null && code.size() >= 24;
+    }
+  }
+}
