@@ -1,1 +1,57 @@
+name: Gerar APK
 
+on:
+  push:
+    branches: [main, master]
+  workflow_dispatch:
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Instalar dependências
+        run: npm install --no-audit --no-fund
+
+      - name: Gerar módulo de sincronização e ícones locais
+        run: npm run build
+
+      - name: Criar projeto Android
+        run: npx cap add android
+
+      - name: Ícones, permissões e versão
+        env:
+          BUILD_NUMBER: ${{ github.run_number }}
+        run: bash scripts/android-prepare.sh
+
+      - name: Sincronizar plugins
+        run: npx cap sync android
+
+      - name: Assinatura fixa (opcional, permite atualizar o app sem desinstalar)
+        env:
+          KS: ${{ secrets.ANDROID_DEBUG_KEYSTORE_B64 }}
+        run: |
+          mkdir -p ~/.android
+          if [ -n "$KS" ]; then echo "$KS" | base64 -d > ~/.android/debug.keystore; fi
+
+      - name: Compilar APK
+        working-directory: android
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleDebug --no-daemon
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: FARPOP-apk
+          path: android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
