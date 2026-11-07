@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#1e40af">
+<title>FARPOP - GESTÃO DE RETIRADAS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="stylesheet" href="vendor/fontawesome/css/all.min.css" onerror="this.onerror=null;this.href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css'">
+<style>
+:root{
+  --primary:#2563eb;--primary-d:#1d4ed8;--primary-l:#eff6ff;
+  --bg:#eef4ff;--bg2:#dbeafe;--card:#ffffff;--text:#0f172a;--muted:#64748b;--border:#e2e8f0;--field:#f8fafc;
+  --ok:#059669;--ok-bg:#ecfdf5;--warn:#d97706;--warn-bg:#fffbeb;--bad:#dc2626;--bad-bg:#fef2f2;--today:#854d0e;--today-bg:#fef9c3;
+  --shadow:0 10px 25px -8px rgba(37,99,235,.15),0 2px 6px rgba(15,23,42,.04);--r:18px;
+}
+@media (prefers-color-scheme:dark){
+  :root{--bg:#0b1220;--bg2:#0f172a;--card:#111a2e;--text:#e5edf9;--muted:#94a3b8;--border:#22304a;--field:#0d1628;--primary-l:#14223f;
+    --ok-bg:#0b2a22;--warn-bg:#2d2208;--bad-bg:#2f1114;--today-bg:#2e2a0a;--today:#fde68a;--shadow:0 10px 25px -8px rgba(0,0,0,.5)}
+}
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Plus Jakarta Sans',-apple-system,BlinkMacSystemFont,sans-serif;text-transform:uppercase;-webkit-tap-highlight-color:transparent}
+body{background:linear-gradient(160deg,var(--bg) 0%,var(--bg2) 100%);color:var(--text);min-height:100vh;display:flex;justify-content:center;padding:0 12px calc(96px + env(safe-area-inset-bottom))}
+.app{width:100%;max-width:600px;display:flex;flex-direction:column;gap:16px;padding-top:max(14px,env(safe-area-inset-top))}
+button{cursor:pointer;border:none;font-weight:800}
+/* header */
+header{background:linear-gradient(135deg,#1e3a8a 0%,#2563eb 60%,#38bdf8 130%);color:#fff;padding:20px;border-radius:var(--r);box-shadow:var(--shadow);position:relative;overflow:hidden}
+header::after{content:'';position:absolute;right:-30px;top:-40px;width:150px;height:150px;border-radius:50%;background:rgba(255,255,255,.12)}
+.hd{display:flex;align-items:center;gap:14px;position:relative;z-index:1}
+.hd-ico{width:50px;height:50px;border-radius:14px;background:rgba(255,255,255,.2);display:grid;place-items:center;font-size:1.5rem;backdrop-filter:blur(8px)}
+.hd h1{font-size:1.4rem;font-weight:800;letter-spacing:-.02em}
+.hd p{font-size:.72rem;opacity:.9;margin-top:2px;font-weight:600;line-height:1.3}
+/* cards */
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:18px;box-shadow:var(--shadow)}
+.card-t{font-size:.95rem;font-weight:800;display:flex;align-items:center;gap:8px;margin-bottom:14px}
+.card-t i{color:var(--primary)}
+.sec-t{font-size:.78rem;font-weight:800;color:var(--muted);letter-spacing:.06em;margin:4px 4px -4px}
+.hint{font-size:.72rem;color:var(--muted);font-weight:600;line-height:1.4}
+/* banners */
+.banner{display:flex;gap:12px;align-items:center;padding:14px;border-radius:14px;border:1px solid var(--border);background:var(--card);box-shadow:var(--shadow);font-size:.78rem;font-weight:700}
+.banner i.big{font-size:1.3rem}
+.banner .grow{flex:1;line-height:1.35}
+.banner.warn{background:var(--warn-bg);border-color:#fcd34d;color:var(--warn)}
+.banner.bad{background:var(--bad-bg);border-color:#fca5a5;color:var(--bad)}
+.banner.info{background:var(--primary-l);border-color:#bfdbfe;color:var(--primary)}
+.banner.ok{background:var(--ok-bg);border-color:#6ee7b7;color:var(--ok)}
+/* buttons */
+.btn{padding:12px 16px;border-radius:12px;font-size:.82rem;display:inline-flex;align-items:center;justify-content:center;gap:8px;transition:transform .1s,filter .2s}
+.btn:active{transform:scale(.97)}
+.btn-p{background:linear-gradient(135deg,var(--primary),var(--primary-d));color:#fff;box-shadow:0 4px 12px rgba(37,99,235,.28)}
+.btn-ok{background:linear-gradient(135deg,#10b981,#047857);color:#fff;box-shadow:0 4px 12px rgba(5,150,105,.25)}
+.btn-s{background:var(--primary-l);color:var(--primary);border:1px solid #bfdbfe}
+.btn-g{background:var(--field);color:var(--muted);border:1px solid var(--border)}
+.btn-d{background:var(--bad);color:#fff}
+.btn-block{width:100%}
+.btn-sm{padding:8px 10px;font-size:.7rem;border-radius:9px}
+/* stats */
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.stat{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:14px 10px;text-align:center;box-shadow:var(--shadow);cursor:pointer}
+.stat b{display:block;font-size:1.8rem;font-weight:800;line-height:1}
+.stat span{font-size:.64rem;font-weight:800;color:var(--muted);letter-spacing:.05em;display:block;margin-top:6px}
+.stat.late b{color:var(--bad)}.stat.today b{color:var(--warn)}.stat.soon b{color:var(--primary)}
+/* forms */
+.form{display:flex;flex-direction:column;gap:16px}
+.fg{display:flex;flex-direction:column;gap:6px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+label.l{font-size:.74rem;font-weight:800;color:var(--muted);display:flex;gap:6px;align-items:center;letter-spacing:.03em}
+input,select{width:100%;padding:13px 14px;border:1px solid var(--border);border-radius:12px;font-size:.92rem;background:var(--field);color:var(--text);outline:none;font-weight:600;transition:.2s;appearance:none;-webkit-appearance:none}
+select{background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'><path d='M1 1l5 5 5-5' stroke='%2364748b' stroke-width='2' fill='none' stroke-linecap='round'/></svg>");background-repeat:no-repeat;background-position:right 14px center;padding-right:36px}
+input:focus,select:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(37,99,235,.15)}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.seg .opt{border:2px solid var(--border);background:var(--field);border-radius:14px;padding:14px 8px;text-align:center;font-weight:800;font-size:.8rem;cursor:pointer;color:var(--muted);display:flex;flex-direction:column;gap:6px;align-items:center;transition:.15s;user-select:none}
+.seg .opt i{font-size:1.3rem}
+.seg .opt.on{border-color:var(--primary);background:var(--primary-l);color:var(--primary)}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{padding:9px 12px;border-radius:999px;border:1px solid var(--border);background:var(--field);font-size:.72rem;font-weight:800;color:var(--muted);cursor:pointer;user-select:none;transition:.15s;display:inline-flex;align-items:center;gap:6px}
+.chip.on{background:var(--primary);border-color:var(--primary);color:#fff}
+.medlist{display:flex;flex-direction:column;gap:8px;background:var(--field);border:1px dashed var(--border);border-radius:14px;padding:12px}
+.med{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;background:var(--card);border:1px solid var(--border);font-size:.78rem;font-weight:700;cursor:pointer;user-select:none}
+.med.on{border-color:var(--primary);background:var(--primary-l)}
+.med .box{width:20px;height:20px;border-radius:6px;border:2px solid var(--border);display:grid;place-items:center;font-size:.7rem;color:transparent;flex:none}
+.med.on .box{background:var(--primary);border-color:var(--primary);color:#fff}
+.preview{background:var(--primary-l);border:1px solid #bfdbfe;color:var(--primary);border-radius:12px;padding:12px;font-size:.76rem;font-weight:800;display:flex;gap:8px;align-items:center}
+/* recipe header */
+.rhead{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px}
+.rhead .t{font-size:.9rem;font-weight:800;display:flex;gap:8px;align-items:center}
+.rhead .t i{color:var(--primary)}
+.progress{height:8px;background:var(--border);border-radius:99px;overflow:hidden;margin:6px 0 4px}
+.progress div{height:100%;border-radius:99px;background:linear-gradient(90deg,#10b981,#34d399);transition:width .4s}
+.progress.warn div{background:linear-gradient(90deg,#f59e0b,#fbbf24)}
+.progress.bad div{background:linear-gradient(90deg,#dc2626,#f87171)}
+/* record item */
+.list{display:flex;flex-direction:column;gap:10px}
+.rec{border:1px solid var(--border);border-left:5px solid var(--primary);border-radius:14px;padding:12px;background:var(--card);display:flex;flex-direction:column;gap:10px}
+.rec.late{border-left-color:var(--bad);background:var(--bad-bg)}
+.rec.today{border-left-color:var(--warn);background:var(--today-bg)}
+.rec.tomorrow,.rec.soon{border-left-color:var(--warn)}
+.rec.future{border-left-color:var(--primary)}
+.rec.done{border-left-color:var(--ok);opacity:.72}
+.rec-top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.rec-name{font-weight:800;font-size:.86rem;display:flex;gap:8px;align-items:center}
+.rec-name .ic{width:32px;height:32px;border-radius:10px;display:grid;place-items:center;font-size:.9rem;flex:none}
+.ic.f{background:#e0f2fe;color:#0284c7}.ic.m{background:#d1fae5;color:#059669}
+.meta{font-size:.68rem;color:var(--muted);font-weight:700;line-height:1.5;margin-top:4px}
+.meta i{width:14px;text-align:center}
+.meds-d{margin-top:6px;padding-left:8px;border-left:2px solid var(--primary);font-size:.68rem;font-weight:700;line-height:1.5}
+.badge{display:inline-flex;gap:5px;align-items:center;padding:5px 8px;border-radius:8px;font-size:.64rem;font-weight:800;white-space:nowrap}
+.b-ok{background:var(--ok-bg);color:var(--ok)}.b-warn{background:var(--warn-bg);color:var(--warn)}.b-bad{background:var(--bad-bg);color:var(--bad)}.b-today{background:#fef08a;color:#713f12}.b-info{background:var(--primary-l);color:var(--primary)}
+.due{text-align:right;flex:none}
+.due b{display:block;font-size:.95rem;margin-bottom:4px}
+.acts{display:flex;gap:6px;flex-wrap:wrap}
+.acts .btn{flex:1;min-width:90px}
+.empty{text-align:center;padding:30px 10px;color:var(--muted);font-size:.78rem;font-weight:700}
+.empty i{font-size:2.4rem;opacity:.35;display:block;margin-bottom:10px}
+/* settings list */
+.srow{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--border);border-radius:10px;background:var(--field);font-size:.76rem;font-weight:700}
+.srow button{background:none;color:#94a3b8;font-size:.95rem;padding:4px 6px}
+.srow button:hover{color:var(--bad)}
+.addrow{display:flex;gap:8px}
+.addrow input{flex:1}
+/* nav */
+nav{position:fixed;left:0;right:0;bottom:0;display:flex;justify-content:center;padding:8px 12px calc(8px + env(safe-area-inset-bottom));background:linear-gradient(to top,var(--bg) 60%,transparent);z-index:50}
+.nav-in{width:100%;max-width:600px;display:grid;grid-template-columns:repeat(4,1fr);background:var(--card);border:1px solid var(--border);border-radius:20px;padding:6px;box-shadow:0 8px 30px rgba(15,23,42,.18)}
+.nav-in button{background:none;color:var(--muted);padding:9px 4px;border-radius:14px;font-size:.6rem;display:flex;flex-direction:column;align-items:center;gap:4px;position:relative}
+.nav-in button i{font-size:1.1rem}
+.nav-in button.on{background:var(--primary);color:#fff}
+.nav-in .dot{position:absolute;top:4px;right:calc(50% - 22px);background:var(--bad);color:#fff;border-radius:99px;min-width:16px;height:16px;font-size:.58rem;display:grid;place-items:center;padding:0 4px}
+/* modal & toast */
+.ov{position:fixed;inset:0;background:rgba(15,23,42,.55);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;z-index:9999;opacity:0;pointer-events:none;transition:.2s}
+.ov.on{opacity:1;pointer-events:auto}
+.modal{background:var(--card);width:90%;max-width:400px;border-radius:22px;padding:24px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:12px;transform:scale(.95);transition:.2s;box-shadow:0 20px 40px rgba(0,0,0,.25)}
+.ov.on .modal{transform:scale(1)}
+.m-ico{width:56px;height:56px;border-radius:50%;display:grid;place-items:center;font-size:1.5rem}
+.m-ico.danger{background:var(--bad-bg);color:var(--bad)}.m-ico.warning{background:var(--warn-bg);color:var(--warn)}.m-ico.info{background:var(--primary-l);color:var(--primary)}
+.m-t{font-weight:800;font-size:1rem}.m-m{font-size:.8rem;color:var(--muted);font-weight:600;line-height:1.45}
+.m-a{display:flex;gap:10px;width:100%;margin-top:4px}.m-a .btn{flex:1}
+#toast{position:fixed;left:50%;bottom:calc(92px + env(safe-area-inset-bottom));transform:translate(-50%,20px);background:#0f172a;color:#fff;padding:12px 14px;border-radius:14px;display:flex;gap:14px;align-items:center;font-size:.76rem;font-weight:700;opacity:0;pointer-events:none;transition:.25s;z-index:10000;max-width:92vw;box-shadow:0 10px 30px rgba(0,0,0,.35)}
+#toast.on{opacity:1;transform:translate(-50%,0);pointer-events:auto}
+#toast button{background:none;color:#7dd3fc;font-size:.74rem}
+.fade{animation:fade .25s ease}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@media(max-width:480px){.row{grid-template-columns:1fr}.rec-top{flex-direction:column}.due{text-align:left}}
+.sync-chip{position:absolute;top:14px;right:14px;z-index:2;display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.18);backdrop-filter:blur(8px);color:#fff;border:1px solid rgba(255,255,255,.3);padding:6px 10px;border-radius:999px;font-size:.62rem;font-weight:800;letter-spacing:.03em}
+.sync-chip.ok i{color:#86efac}.sync-chip.err i{color:#fca5a5}.sync-chip.off{opacity:.85}
+.sync-chip.busy i{animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+textarea{width:100%;min-height:120px;padding:12px 14px;border:1px solid var(--border);border-radius:12px;background:var(--field);color:var(--text);font-size:.7rem;font-weight:600;outline:none;resize:vertical;text-transform:none;font-family:ui-monospace,Menlo,Consolas,monospace}
+textarea:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(37,99,235,.15)}
+.preview i{font-size:1.1rem}
+</style>
+<script src="sync.bundle.js" defer></script>
+</head>
+<body>
+<div class="app">
+  <header>
+    <button class="sync-chip off" id="syncChip" onclick="go('settings')"><i class="fa-solid fa-cloud"></i>SEM SYNC</button>
+    <div class="hd">
+      <div class="hd-ico"><i class="fa-solid fa-prescription-bottle-medical"></i></div>
+      <div><h1>FARPOP</h1><p>GESTÃO DE RETIRADAS DE MEDICAMENTOS E FRALDAS NA FARMÁCIA POPULAR</p></div>
+    </div>
+  </header>
+  <main id="view"></main>
+</div>
+
+<nav><div class="nav-in" id="nav"></div></nav>
+
+<div class="ov" id="ov"><div class="modal">
+  <div class="m-ico warning" id="mIco"><i class="fa-solid fa-triangle-exclamation"></i></div>
+  <div class="m-t" id="mT"></div><div class="m-m" id="mM"></div>
+  <div class="m-a" id="mA"></div>
+</div></div>
+<div id="toast"><span id="toastMsg"></span><button id="toastBtn" style="display:none">DESFAZER</button></div>
+<input type="file" id="fileImport" accept="application/json,.json" style="display:none">
+
+<script>
+/* =====================================================
+   ARMAZENAMENTO
+   - Chave única versionada (farpop_v2) com migração automática das chaves antigas
+   - Cada retirada guarda o seu próprio intervalo (mudar ajustes não altera o histórico)
+   - IDs únicos (nada de índices de array)
+   - Cópia de segurança automática antes de migrar/importar
+   - Exportar/Importar JSON + lembrete de backup
+   - Sincroniza entre abas e pede armazenamento persistente
+   ===================================================== */
+const KEY = 'farpop_v2', BAK = 'farpop_v2_bak', NOTIF = 'farpop_notified';
+const DEF_MEDS = ['HIDROCLOROTIAZIDA 25mg (1 CAIXA)','GLIBENCLAMIDA 5mg (4 CAIXAS)','LOSARTANA 50mg (2 CAIXAS)','METFORMINA 500mg (4 CAIXAS)','SINVASTATINA 20mg (1 CAIXA)'];
+const defaults = () => ({
+  v: 2,
+  settings: { pharmacies:['PACHECO','PAGUE MENOS'], meds:[...DEF_MEDS], intervalMeds:31, intervalDiapers:11, recipeValidity:180, renewAlert:20, updatedAt:0 },
+  recipes: [], records: [], deleted: { recipes:{}, records:{} }
+});
+const uid = p => p + '_' + Date.now().toString(36) + Math.random().toString(36).slice(2,6);
+
+function normalize(d){
+  const base = defaults();
+  d = d && typeof d === 'object' ? d : base;
+  d.settings = Object.assign(base.settings, d.settings || {});
+  d.recipes = Array.isArray(d.recipes) ? d.recipes.filter(r => r && r.id && r.date) : [];
+  d.records = Array.isArray(d.records) ? d.records.filter(r => r && r.id && r.date) : [];
+  const del = d.deleted && typeof d.deleted === 'object' ? d.deleted : {};
+  d.deleted = { recipes: Object.assign({}, del.recipes), records: Object.assign({}, del.records) };
+  d.v = 2; return d;
+}
+function migrateV1(){
+  try{
+    const oldR = JSON.parse(localStorage.getItem('farmacia_popular_recipes') || 'null');
+    const oldRec = JSON.parse(localStorage.getItem('farmacia_popular_records') || 'null');
+    if(!oldR && !oldRec) return null;
+    const d = defaults();
+    d.recipes = (oldR||[]).map(r => ({id:r.id||uid('rec'), date:r.date, createdAt:Date.now()}));
+    d.records = (oldRec||[]).map(r => ({
+      id: uid('ret'), recipeId: r.recipeId, pharmacy: r.pharmacy, type: r.itemType === 'FRALDAS' ? 'FRALDAS' : 'MEDICAMENTOS',
+      date: r.date, brand: r.brand||'', qty: r.qty||'', meds: r.selectedMeds||[],
+      interval: r.itemType === 'FRALDAS' ? 11 : 31, done: !!r.completed, doneAt: null, createdAt: Date.now()
+    }));
+    localStorage.setItem('farpop_v1_backup', JSON.stringify({recipes:oldR, records:oldRec})); // preserva o original
+    return d;
+  }catch(e){ return null; }
+}
+function load(){
+  try{ const raw = localStorage.getItem(KEY); if(raw) return normalize(JSON.parse(raw)); }catch(e){
+    try{ const b = localStorage.getItem(BAK); if(b) return normalize(JSON.parse(b)); }catch(_){}
+  }
+  const mig = migrateV1(); if(mig){ try{localStorage.setItem(KEY, JSON.stringify(mig));}catch(e){} return normalize(mig); }
+  return defaults();
+}
+let S = load();
+function saveLocal(){
+  try{ localStorage.setItem(KEY, JSON.stringify(S)); return true; }
+  catch(e){ toast('ERRO AO SALVAR: ARMAZENAMENTO CHEIO. EXPORTE UM BACKUP.'); return false; }
+}
+function save(){            // grava no aparelho e envia para a nuvem (se conectado)
+  const ok = saveLocal();
+  if(window.Sync) Sync.push();
+  scheduleNative();
+  return ok;
+}
+window.addEventListener('storage', e => { if(e.key === KEY){ S = load(); if(ui.tab !== 'new') render(); } });
+if(navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(()=>{});
+
+/* ===== DATAS (sempre no horário local, sem bug de fuso) ===== */
+const pad = n => String(n).padStart(2,'0');
+const ymd = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const parse = s => { const [y,m,d] = s.split('-').map(Number); return new Date(y, m-1, d); };
+const addDays = (d,n) => { const x = new Date(d); x.setDate(x.getDate()+n); x.setHours(0,0,0,0); return x; };
+const today = () => { const d = new Date(); d.setHours(0,0,0,0); return d; };
+const diff = (a,b) => Math.round((a - b) / 86400000);
+const fmt = d => (typeof d === 'string' ? d.split('-').reverse().join('/') : `${pad(d.getDate())}/${pad(d.getMonth()+1)}/${d.getFullYear()}`);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+/* ===== REGRAS ===== */
+const latestRecipe = () => [...S.recipes].sort((a,b) => b.date.localeCompare(a.date))[0] || null;
+function recipeInfo(r){
+  const isLatest = latestRecipe() && latestRecipe().id === r.id;
+  const exp = addDays(parse(r.date), S.settings.recipeValidity);
+  const left = diff(exp, today());
+  const total = S.settings.recipeValidity;
+  const pct = Math.max(0, Math.min(100, (left / total) * 100));
+  let key = 'ok', label = 'RECEITA VIGENTE';
+  if(!isLatest || left < 0){ key = 'bad'; label = 'RECEITA VENCIDA'; }
+  else if(left <= S.settings.renewAlert){ key = 'warn'; label = 'RENOVAR RECEITA'; }
+  return {exp, left, pct, key, label, isLatest};
+}
+function dueInfo(r){
+  const due = addDays(parse(r.date), r.interval);
+  const d = diff(due, today());
+  let k = 'future';
+  if(r.done) k = 'done'; else if(d < 0) k = 'late'; else if(d === 0) k = 'today'; else if(d === 1) k = 'tomorrow'; else if(d <= 7) k = 'soon';
+  return {due, d, k};
+}
+const rank = {late:0, today:1, tomorrow:2, soon:3, future:4, done:5};
+const byUrgency = (a,b) => { const A = dueInfo(a), B = dueInfo(b); return rank[A.k] - rank[B.k] || A.d - B.d; };
+const pending = () => S.records.filter(r => !r.done);
+function badge(k, d){
+  return ({
+    done:`<span class="badge b-ok"><i class="fa-solid fa-circle-check"></i> RETIRADO</span>`,
+    late:`<span class="badge b-bad"><i class="fa-solid fa-circle-exclamation"></i> ATRASADA ${Math.abs(d)}D</span>`,
+    today:`<span class="badge b-today"><i class="fa-solid fa-calendar-check"></i> HOJE</span>`,
+    tomorrow:`<span class="badge b-warn"><i class="fa-solid fa-clock"></i> AMANHÃ</span>`,
+    soon:`<span class="badge b-warn"><i class="fa-solid fa-hourglass-half"></i> EM ${d} DIAS</span>`,
+    future:`<span class="badge b-info"><i class="fa-regular fa-calendar"></i> EM ${d} DIAS</span>`
+  })[k];
+}
+
+/* ===== MESCLAGEM E CARIMBOS (base da sincronização) =====
+   - Cada receita/retirada tem updatedAt; vence a versão mais nova.
+   - Exclusões viram "lápides" (deleted) para também sumirem nos outros aparelhos.
+   - A mesclagem é comutativa: a ordem em que os aparelhos sincronizam não importa. */
+const tsOf = x => (x && (x.updatedAt || x.createdAt)) || 0;
+const jsonOf = x => JSON.stringify(x);
+function newer(x, c){ const a = tsOf(x), b = tsOf(c); return a > b || (a === b && jsonOf(x) > jsonOf(c)); }
+function mergeStates(a, b){
+  const sa = a.settings || {}, sb = b.settings || {};
+  const pickB = (sb.updatedAt || 0) > (sa.updatedAt || 0) || ((sb.updatedAt || 0) === (sa.updatedAt || 0) && jsonOf(sb) > jsonOf(sa));
+  const out = normalize({ settings: JSON.parse(JSON.stringify(pickB ? sb : sa)), recipes: [], records: [] });
+  const limit = Date.now() - 90 * 86400000;
+  for(const kind of ['recipes','records']){
+    const tomb = {};
+    [a, b].forEach(st => Object.entries((st.deleted && st.deleted[kind]) || {}).forEach(([id, t]) => { if(t > (tomb[id] || 0)) tomb[id] = t; }));
+    const map = new Map();
+    [a, b].forEach(st => st[kind].forEach(x => { const c = map.get(x.id); if(!c || newer(x, c)) map.set(x.id, x); }));
+    for(const [id, x] of [...map]){ if(tomb[id] && tomb[id] >= tsOf(x)) map.delete(id); else delete tomb[id]; }
+    out[kind] = [...map.values()].sort((p, q) => p.id < q.id ? -1 : p.id > q.id ? 1 : 0);
+    Object.keys(tomb).forEach(id => { if(tomb[id] < limit) delete tomb[id]; });
+    out.deleted[kind] = tomb;
+  }
+  return out;
+}
+function stampDiff(prev, next){      // carimba o que mudou entre dois estados
+  const now = Date.now();
+  for(const kind of ['recipes','records']){
+    const before = new Map(prev[kind].map(x => [x.id, jsonOf(x)]));
+    const ids = new Set();
+    for(const x of next[kind]){
+      ids.add(x.id);
+      if(before.get(x.id) !== jsonOf(x)) x.updatedAt = now;
+      delete next.deleted[kind][x.id];
+    }
+    for(const id of before.keys()){ if(!ids.has(id)) next.deleted[kind][id] = now; }
+  }
+  if(jsonOf(prev.settings) !== jsonOf(next.settings)) next.settings.updatedAt = now;
+}
+
+/* ===== UI HELPERS ===== */
+const $ = s => document.querySelector(s);
+let ui = { tab:'home', filter:'all', draft:null };
+let toastTimer = null, undoSnap = null;
+
+function toast(msg, undo){
+  $('#toastMsg').textContent = msg;
+  const b = $('#toastBtn');
+  b.style.display = undo ? '' : 'none';
+  b.onclick = () => { if(undoSnap){ const cur = S; S = undoSnap; undoSnap = null; stampDiff(cur, S); save(); render(); } hideToast(); };
+  $('#toast').classList.add('on');
+  clearTimeout(toastTimer); toastTimer = setTimeout(hideToast, undo ? 6000 : 3200);
+}
+const hideToast = () => $('#toast').classList.remove('on');
+function mutate(fn, msg){           // altera dados com opção de desfazer
+  undoSnap = JSON.parse(JSON.stringify(S));
+  fn(); stampDiff(undoSnap, S); save(); render(); if(msg) toast(msg, true);
+}
+function modal({title, msg, type='warning', icon='fa-triangle-exclamation', ok='ENTENDIDO', cancel=null, danger=false, onOk}){
+  $('#mIco').className = 'm-ico ' + type; $('#mIco').innerHTML = `<i class="fa-solid ${icon}"></i>`;
+  $('#mT').textContent = title; $('#mM').textContent = msg;
+  $('#mA').innerHTML = (cancel ? `<button class="btn btn-g" id="mC">${cancel}</button>` : '') + `<button class="btn ${danger?'btn-d':'btn-p'}" id="mO">${ok}</button>`;
+  $('#ov').classList.add('on');
+  const close = () => $('#ov').classList.remove('on');
+  $('#mO').onclick = () => { close(); onOk && onOk(); };
+  if(cancel) $('#mC').onclick = close;
+}
+const confirmBox = (title, msg, ok, onOk) => modal({title, msg, type:'danger', icon:'fa-trash-can', ok, cancel:'CANCELAR', danger:true, onOk});
+
+/* ===== NAV ===== */
+function renderNav(){
+  const late = pending().filter(r => dueInfo(r).k === 'late').length + pending().filter(r => dueInfo(r).k === 'today').length;
+  const tabs = [['home','fa-house','INÍCIO'],['new','fa-circle-plus','NOVA'],['history','fa-clock-rotate-left','HISTÓRICO'],['settings','fa-sliders','AJUSTES']];
+  $('#nav').innerHTML = tabs.map(([k,i,l]) => `<button class="${ui.tab===k?'on':''}" onclick="go('${k}')"><i class="fa-solid ${i}"></i>${l}${k==='home'&&late?`<span class="dot">${late}</span>`:''}</button>`).join('');
+}
+function go(tab, filter){ ui.tab = tab; if(filter) ui.filter = filter; render(); window.scrollTo({top:0, behavior:'smooth'}); }
+
+/* ===== VIEWS ===== */
+function recCard(r, opts = {}){
+  const {due, d, k} = dueInfo(r);
+  const ic = r.type === 'FRALDAS' ? '<span class="ic f"><i class="fa-solid fa-baby"></i></span>' : '<span class="ic m"><i class="fa-solid fa-pills"></i></span>';
+  let meta = `<div><i class="fa-solid fa-store"></i> ${esc(r.pharmacy)} &nbsp;·&nbsp; <i class="fa-solid fa-arrow-down"></i> RETIRADO EM ${fmt(r.date)}</div>`;
+  if(r.type === 'FRALDAS' && (r.brand || r.qty)) meta += `<div><i class="fa-solid fa-tag"></i> ${esc(r.brand)||'—'} ${r.qty?`&nbsp;·&nbsp; <i class="fa-solid fa-layer-group"></i> ${esc(r.qty)} UN`:''}</div>`;
+  if(r.type === 'MEDICAMENTOS' && r.meds.length) meta += `<div class="meds-d">${r.meds.map(m => '• ' + esc(m)).join('<br>')}</div>`;
+  const acts = r.done
+    ? `<button class="btn btn-g btn-sm" onclick="undone('${r.id}')"><i class="fa-solid fa-rotate-left"></i> REABRIR</button><button class="btn btn-g btn-sm" onclick="delRec('${r.id}')"><i class="fa-solid fa-trash-can"></i> EXCLUIR</button>`
+    : `<button class="btn btn-ok btn-sm" onclick="repeat('${r.id}')"><i class="fa-solid fa-bag-shopping"></i> RETIREI HOJE</button>
+       <button class="btn btn-s btn-sm" onclick="markDone('${r.id}')"><i class="fa-solid fa-check"></i> SÓ MARCAR OK</button>
+       <button class="btn btn-g btn-sm" onclick="ics('${r.id}')" title="ADICIONAR À AGENDA"><i class="fa-regular fa-calendar-plus"></i></button>
+       <button class="btn btn-g btn-sm" onclick="delRec('${r.id}')"><i class="fa-solid fa-trash-can"></i></button>`;
+  return `<div class="rec ${k} fade">
+    <div class="rec-top">
+      <div><div class="rec-name">${ic}${r.type}</div><div class="meta">${meta}</div></div>
+      <div class="due">${r.done ? '' : `<b>${fmt(due)}</b>`}${badge(k, d)}</div>
+    </div>
+    <div class="acts">${acts}</div>
+  </div>`;
+}
+
+function viewHome(){
+  const p = pending().sort(byUrgency);
+  const late = p.filter(r => dueInfo(r).k === 'late').length;
+  const tod = p.filter(r => dueInfo(r).k === 'today').length;
+  const soon = p.filter(r => ['tomorrow','soon'].includes(dueInfo(r).k)).length;
+  const lr = latestRecipe();
+  let h = '';
+
+  if(window.Sync && !syncOn())
+    h += `<div class="banner info"><i class="fa-solid fa-cloud big"></i><div class="grow">SINCRONIZE OS DADOS ENTRE CELULAR, TABLET E PC.</div><button class="btn btn-p btn-sm" onclick="go('settings')">CONFIGURAR</button></div>`;
+  if(notifSupported() && notifPerm() === 'default')
+    h += `<div class="banner info"><i class="fa-solid fa-bell big"></i><div class="grow">ATIVE OS ALERTAS PARA RECEBER LEMBRETES DE RETIRADA.</div><button class="btn btn-p btn-sm" onclick="askNotif()">ATIVAR</button></div>`;
+  if(S.records.length + S.recipes.length > 0 && !syncOn()){
+    const lb = lastBackup(); const days = lb ? diff(today(), parse(lb)) : null;
+    if(lb === null || days > 30)
+      h += `<div class="banner warn"><i class="fa-solid fa-cloud-arrow-down big"></i><div class="grow">${lb===null?'VOCÊ AINDA NÃO FEZ BACKUP DOS SEUS DADOS.':`ÚLTIMO BACKUP HÁ ${days} DIAS.`}</div><button class="btn btn-p btn-sm" onclick="exportData()">BACKUP</button></div>`;
+  }
+
+  if(!lr){
+    h += `<div class="card"><div class="empty"><i class="fa-solid fa-file-prescription"></i>COMECE CADASTRANDO SUA RECEITA MÉDICA.</div>
+      <div class="fg"><label class="l">DATA DA RECEITA</label><input type="date" id="rDate" value="${ymd(new Date())}"></div>
+      <button class="btn btn-ok btn-block" style="margin-top:12px" onclick="addRecipe('rDate')"><i class="fa-solid fa-floppy-disk"></i> SALVAR RECEITA</button></div>`;
+  } else {
+    const ri = recipeInfo(lr);
+    const cls = ri.key === 'ok' ? '' : ri.key;
+    const msg = ri.left < 0 ? `VENCEU HÁ ${Math.abs(ri.left)} DIAS` : `${ri.left} DIAS RESTANTES`;
+    h += `<div class="card"><div class="rhead"><div class="t"><i class="fa-solid fa-file-prescription"></i> RECEITA DE ${fmt(lr.date)}</div>
+        <span class="badge b-${ri.key==='ok'?'ok':ri.key==='warn'?'warn':'bad'}">${ri.label}</span></div>
+      <div class="progress ${cls}"><div style="width:${ri.pct}%"></div></div>
+      <div class="hint">VALIDADE ATÉ ${fmt(ri.exp)} · ${msg}</div>
+      ${ri.key!=='ok'?`<button class="btn btn-s btn-block" style="margin-top:12px" onclick="go('history')"><i class="fa-solid fa-plus"></i> CADASTRAR NOVA RECEITA</button>`:''}</div>`;
+  }
+
+  h += `<div class="stats">
+    <div class="stat late" onclick="go('history','late')"><b>${late}</b><span>ATRASADAS</span></div>
+    <div class="stat today" onclick="go('history','today')"><b>${tod}</b><span>PARA HOJE</span></div>
+    <div class="stat soon" onclick="go('history','soon')"><b>${soon}</b><span>PRÓX. 7 DIAS</span></div></div>`;
+
+  h += `<div class="sec-t">PRÓXIMAS RETIRADAS</div>`;
+  const top = p.slice(0, 6);
+  h += top.length ? `<div class="list">${top.map(r => recCard(r)).join('')}</div>` :
+    `<div class="card"><div class="empty"><i class="fa-solid fa-circle-check"></i>NENHUMA RETIRADA PENDENTE.<br>TOQUE EM “NOVA” PARA REGISTRAR.</div></div>`;
+  if(p.length > 6) h += `<button class="btn btn-s btn-block" onclick="go('history','pending')">VER TODAS (${p.length})</button>`;
+  return h;
+}
+
+function viewNew(){
+  const lr = latestRecipe();
+  const d = ui.draft || (ui.draft = { type:{FRALDAS:false, MEDICAMENTOS:false}, meds:[], pharmacy:'', date:ymd(new Date()), brand:'', qty:'', recipeId: lr ? lr.id : '' });
+  if(!lr) return `<div class="card"><div class="empty"><i class="fa-solid fa-file-prescription"></i>CADASTRE UMA RECEITA ANTES DE REGISTRAR RETIRADAS.</div>
+    <button class="btn btn-p btn-block" onclick="go('home')">IR PARA O INÍCIO</button></div>`;
+  const recSel = S.recipes.length > 1 ? `<div class="fg"><label class="l"><i class="fa-solid fa-file-prescription"></i> RECEITA</label>
+    <select onchange="ui.draft.recipeId=this.value">${[...S.recipes].sort((a,b)=>b.date.localeCompare(a.date)).map(r=>`<option value="${r.id}" ${d.recipeId===r.id?'selected':''}>${fmt(r.date)}${latestRecipe().id===r.id?' (ATUAL)':''}</option>`).join('')}</select></div>` : '';
+  return `<div class="card fade"><div class="card-t"><i class="fa-solid fa-circle-plus"></i> NOVA RETIRADA</div>
+  <div class="form">
+    <div class="fg"><label class="l"><i class="fa-solid fa-store"></i> FARMÁCIA</label>
+      <div class="chips">${S.settings.pharmacies.map(p=>`<span class="chip ${d.pharmacy===p?'on':''}" onclick="ui.draft.pharmacy='${esc(p).replace(/'/g,'')}';render()">${esc(p)}</span>`).join('')}</div></div>
+    <div class="fg"><label class="l"><i class="fa-solid fa-box"></i> O QUE VOCÊ RETIROU?</label>
+      <div class="seg">
+        <div class="opt ${d.type.FRALDAS?'on':''}" onclick="ui.draft.type.FRALDAS=!ui.draft.type.FRALDAS;render()"><i class="fa-solid fa-baby"></i>FRALDAS<small class="hint">A CADA ${S.settings.intervalDiapers} DIAS</small></div>
+        <div class="opt ${d.type.MEDICAMENTOS?'on':''}" onclick="ui.draft.type.MEDICAMENTOS=!ui.draft.type.MEDICAMENTOS;render()"><i class="fa-solid fa-pills"></i>MEDICAMENTOS<small class="hint">A CADA ${S.settings.intervalMeds} DIAS</small></div>
+      </div></div>
+    ${d.type.MEDICAMENTOS ? `<div class="fg"><div style="display:flex;justify-content:space-between;align-items:center"><label class="l"><i class="fa-solid fa-pills"></i> MEDICAMENTOS</label>
+      <button class="btn btn-s btn-sm" onclick="toggleAllMeds()">${d.meds.length===S.settings.meds.length&&d.meds.length?'DESMARCAR TODOS':'MARCAR TODOS'}</button></div>
+      <div class="medlist">${S.settings.meds.length ? S.settings.meds.map((m,i)=>`<div class="med ${d.meds.includes(m)?'on':''}" onclick="toggleMed(${i})"><span class="box"><i class="fa-solid fa-check"></i></span>${esc(m)}</div>`).join('') : '<div class="hint">NENHUM MEDICAMENTO CADASTRADO. ADICIONE EM AJUSTES.</div>'}</div></div>` : ''}
+    ${d.type.FRALDAS ? `<div class="row"><div class="fg"><label class="l"><i class="fa-solid fa-tag"></i> MARCA</label><input type="text" value="${esc(d.brand)}" oninput="ui.draft.brand=this.value"></div>
+      <div class="fg"><label class="l"><i class="fa-solid fa-layer-group"></i> QTD.</label><input type="number" inputmode="numeric" min="1" value="${esc(d.qty)}" oninput="ui.draft.qty=this.value"></div></div>` : ''}
+    ${recSel}
+    <div class="fg"><label class="l"><i class="fa-solid fa-calendar-day"></i> DATA DA RETIRADA</label><input type="date" value="${d.date}" onchange="ui.draft.date=this.value;render()"></div>
+    ${previewDue(d)}
+    <button class="btn btn-p btn-block" onclick="submitRecord()"><i class="fa-solid fa-floppy-disk"></i> REGISTRAR RETIRADA</button>
+  </div></div>`;
+}
+function previewDue(d){
+  if(!d.date || (!d.type.FRALDAS && !d.type.MEDICAMENTOS)) return '';
+  const l = [];
+  if(d.type.FRALDAS) l.push(`FRALDAS: ${fmt(addDays(parse(d.date), S.settings.intervalDiapers))}`);
+  if(d.type.MEDICAMENTOS) l.push(`MEDICAMENTOS: ${fmt(addDays(parse(d.date), S.settings.intervalMeds))}`);
+  return `<div class="preview"><i class="fa-solid fa-bell"></i><div>PRÓXIMA RETIRADA — ${l.join(' · ')}</div></div>`;
+}
+
+function viewHistory(){
+  const f = ui.filter;
+  const filters = [['all','TODAS'],['pending','PENDENTES'],['late','ATRASADAS'],['today','HOJE'],['soon','PRÓXIMAS'],['done','CONCLUÍDAS']];
+  const match = r => { const k = dueInfo(r).k;
+    return f==='all' || (f==='pending'&&k!=='done') || (f==='done'&&k==='done') || (f==='late'&&k==='late') || (f==='today'&&k==='today') || (f==='soon'&&['tomorrow','soon'].includes(k)); };
+  let h = `<div class="card"><div class="card-t"><i class="fa-solid fa-file-prescription"></i> NOVA RECEITA</div>
+    <div class="row"><div class="fg"><label class="l">DATA DA RECEITA</label><input type="date" id="rDate2" value="${ymd(new Date())}"></div>
+    <div class="fg"><label class="l">&nbsp;</label><button class="btn btn-ok" onclick="addRecipe('rDate2')"><i class="fa-solid fa-floppy-disk"></i> SALVAR</button></div></div></div>
+    <div class="chips" style="overflow-x:auto;flex-wrap:nowrap;padding-bottom:4px">${filters.map(([k,l])=>`<span class="chip ${f===k?'on':''}" style="flex:none" onclick="ui.filter='${k}';render()">${l}</span>`).join('')}</div>`;
+  if(!S.recipes.length) return h + `<div class="card"><div class="empty"><i class="fa-solid fa-inbox"></i>NENHUMA RECEITA OU RETIRADA REGISTRADA.</div></div>`;
+  [...S.recipes].sort((a,b)=>b.date.localeCompare(a.date)).forEach(r => {
+    const ri = recipeInfo(r);
+    const recs = S.records.filter(x => x.recipeId === r.id && match(x)).sort(byUrgency);
+    h += `<div class="card fade"><div class="rhead"><div><div class="t"><i class="fa-solid fa-file-prescription"></i> RECEITA DE ${fmt(r.date)}</div><div class="hint" style="margin-top:3px">VALIDADE ATÉ ${fmt(ri.exp)}</div></div>
+      <div style="display:flex;gap:6px;align-items:center"><span class="badge b-${ri.key==='ok'?'ok':ri.key==='warn'?'warn':'bad'}">${ri.label}</span>
+      <button class="btn btn-g btn-sm" onclick="delRecipe('${r.id}')"><i class="fa-solid fa-trash-can"></i></button></div></div>
+      <div class="list">${recs.length ? recs.map(x=>recCard(x)).join('') : `<div class="empty" style="padding:14px">NENHUMA RETIRADA${f==='all'?' NESTA RECEITA':' NESTE FILTRO'}.</div>`}</div></div>`;
+  });
+  return h;
+}
+
+function viewSettings(){
+  const s = S.settings, lb = lastBackup();
+  return syncCard() + `<div class="card fade"><div class="card-t"><i class="fa-solid fa-stopwatch"></i> PRAZOS</div><div class="form">
+    <div class="row"><div class="fg"><label class="l">INTERVALO FRALDAS (DIAS)</label><input type="number" inputmode="numeric" min="1" value="${s.intervalDiapers}" onchange="setNum('intervalDiapers',this.value)"></div>
+    <div class="fg"><label class="l">INTERVALO MEDICAM. (DIAS)</label><input type="number" inputmode="numeric" min="1" value="${s.intervalMeds}" onchange="setNum('intervalMeds',this.value)"></div></div>
+    <div class="row"><div class="fg"><label class="l">VALIDADE DA RECEITA (DIAS)</label><input type="number" inputmode="numeric" min="1" value="${s.recipeValidity}" onchange="setNum('recipeValidity',this.value)"></div>
+    <div class="fg"><label class="l">AVISAR RENOVAÇÃO (DIAS ANTES)</label><input type="number" inputmode="numeric" min="0" value="${s.renewAlert}" onchange="setNum('renewAlert',this.value)"></div></div>
+    <div class="hint">MUDAR OS INTERVALOS VALE SÓ PARA NOVAS RETIRADAS — O HISTÓRICO FICA PRESERVADO.</div></div></div>
+
+  <div class="card fade"><div class="card-t"><i class="fa-solid fa-store"></i> FARMÁCIAS</div><div class="form">
+    <div class="list" style="gap:8px">${s.pharmacies.map((p,i)=>`<div class="srow">${esc(p)}<button onclick="rmPharm(${i})"><i class="fa-solid fa-xmark"></i></button></div>`).join('')}</div>
+    <div class="addrow"><input id="newPharm" placeholder="NOVA FARMÁCIA"><button class="btn btn-p" onclick="addPharm()"><i class="fa-solid fa-plus"></i></button></div></div></div>
+
+  <div class="card fade"><div class="card-t"><i class="fa-solid fa-pills"></i> LISTA DE MEDICAMENTOS</div><div class="form">
+    <div class="list" style="gap:8px">${s.meds.map((m,i)=>`<div class="srow">${esc(m)}<button onclick="rmMed(${i})"><i class="fa-solid fa-xmark"></i></button></div>`).join('')}</div>
+    <div class="addrow"><input id="newMed" placeholder="EX.: ENALAPRIL 10mg (2 CAIXAS)"><button class="btn btn-p" onclick="addMed()"><i class="fa-solid fa-plus"></i></button></div></div></div>
+
+  <div class="card fade"><div class="card-t"><i class="fa-solid fa-database"></i> DADOS E BACKUP</div><div class="form">
+    <div class="hint">${S.recipes.length} RECEITA(S) · ${S.records.length} RETIRADA(S) · ÚLTIMO BACKUP: ${lb ? fmt(lb) : 'NUNCA'}.<br>${syncOn() ? 'SINCRONIZAÇÃO ATIVA: SEUS DADOS TAMBÉM ESTÃO NA NUVEM. O BACKUP EM ARQUIVO É UMA SEGURANÇA EXTRA.' : 'OS DADOS FICAM SALVOS NESTE APARELHO. FAÇA BACKUP OU ATIVE A SINCRONIZAÇÃO PARA NÃO PERDÊ-LOS AO LIMPAR O CACHE OU TROCAR DE APARELHO.'}</div>
+    <button class="btn btn-p btn-block" onclick="exportData()"><i class="fa-solid fa-file-export"></i> EXPORTAR BACKUP (.JSON)</button>
+    <button class="btn btn-s btn-block" onclick="$('#fileImport').click()"><i class="fa-solid fa-file-import"></i> IMPORTAR BACKUP</button>
+    <button class="btn btn-s btn-block" onclick="testNotif()"><i class="fa-solid fa-vial"></i> TESTAR NOTIFICAÇÃO</button>
+    <button class="btn btn-g btn-block" style="color:var(--bad)" onclick="wipe()"><i class="fa-solid fa-triangle-exclamation"></i> APAGAR TODOS OS DADOS</button></div></div>`;
+}
+
+function render(){
+  renderNav();
+  const v = {home:viewHome, new:viewNew, history:viewHistory, settings:viewSettings}[ui.tab];
+  const y = window.scrollY;
+  $('#view').innerHTML = `<div class="app" style="padding:0">${v()}</div>`;
+  window.scrollTo(0, y);
+  paintSync();
+}
+
+/* ===== AÇÕES ===== */
+function addRecipe(inputId){
+  const date = $('#' + inputId).value;
+  if(!date) return modal({title:'DATA OBRIGATÓRIA', msg:'INFORME A DATA DA RECEITA.'});
+  if(S.recipes.some(r => r.date === date)) return modal({title:'RECEITA JÁ EXISTE', msg:'JÁ HÁ UMA RECEITA CADASTRADA COM ESSA DATA.', type:'info', icon:'fa-circle-info'});
+  mutate(() => { S.recipes.push({id:uid('rec'), date, createdAt:Date.now()}); ui.draft = null; }, 'RECEITA SALVA');
+}
+function delRecipe(id){
+  const n = S.records.filter(r => r.recipeId === id).length;
+  confirmBox('EXCLUIR RECEITA?', `ESTA RECEITA E ${n} RETIRADA(S) ASSOCIADA(S) SERÃO REMOVIDAS.`, 'EXCLUIR',
+    () => mutate(() => { S.recipes = S.recipes.filter(r => r.id !== id); S.records = S.records.filter(r => r.recipeId !== id); ui.draft = null; }, 'RECEITA EXCLUÍDA'));
+}
+function toggleMed(i){ const m = S.settings.meds[i], a = ui.draft.meds; const x = a.indexOf(m); x>=0 ? a.splice(x,1) : a.push(m); render(); }
+function toggleAllMeds(){ const d = ui.draft; d.meds = d.meds.length === S.settings.meds.length ? [] : [...S.settings.meds]; render(); }
+function submitRecord(){
+  const d = ui.draft, warn = (t,m) => modal({title:t, msg:m});
+  if(!latestRecipe()) return warn('RECEITA OBRIGATÓRIA','CADASTRE UMA RECEITA PRIMEIRO.');
+  if(!d.pharmacy) return warn('FARMÁCIA PENDENTE','SELECIONE A FARMÁCIA.');
+  if(!d.type.FRALDAS && !d.type.MEDICAMENTOS) return warn('ITEM PENDENTE','SELECIONE FRALDAS E/OU MEDICAMENTOS.');
+  if(d.type.MEDICAMENTOS && !d.meds.length) return warn('MEDICAMENTO PENDENTE','SELECIONE AO MENOS UM MEDICAMENTO.');
+  if(!d.date) return warn('DATA PENDENTE','INFORME A DATA DA RETIRADA.');
+  const base = {recipeId: S.recipes.some(r => r.id === d.recipeId) ? d.recipeId : latestRecipe().id, pharmacy:d.pharmacy, date:d.date, done:false, doneAt:null, createdAt:Date.now()};
+  mutate(() => {
+    if(d.type.FRALDAS) S.records.push({...base, id:uid('ret'), type:'FRALDAS', brand:d.brand.trim(), qty:String(d.qty).trim(), meds:[], interval:S.settings.intervalDiapers});
+    if(d.type.MEDICAMENTOS) S.records.push({...base, id:uid('ret'), type:'MEDICAMENTOS', brand:'', qty:'', meds:[...d.meds], interval:S.settings.intervalMeds});
+    ui.draft = null; ui.tab = 'home';
+  }, 'RETIRADA REGISTRADA');
+}
+const rec = id => S.records.find(r => r.id === id);
+function markDone(id){ mutate(() => { const r = rec(id); r.done = true; r.doneAt = ymd(new Date()); }, 'MARCADA COMO OK'); }
+function undone(id){ mutate(() => { const r = rec(id); r.done = false; r.doneAt = null; }, 'RETIRADA REABERTA'); }
+function repeat(id){   // conclui a atual e já agenda a próxima a partir de hoje
+  const r0 = rec(id), lr = latestRecipe();
+  const go_ = () => mutate(() => {
+    r0.done = true; r0.doneAt = ymd(new Date());
+    const interval = r0.type === 'FRALDAS' ? S.settings.intervalDiapers : S.settings.intervalMeds;
+    S.records.push({...r0, id:uid('ret'), date:ymd(new Date()), done:false, doneAt:null, interval, createdAt:Date.now(), recipeId: lr ? lr.id : r0.recipeId});
+  }, `OK! PRÓXIMA ${r0.type} EM ${r0.type==='FRALDAS'?S.settings.intervalDiapers:S.settings.intervalMeds} DIAS`);
+  if(lr && recipeInfo(lr).left < 0) modal({title:'RECEITA VENCIDA', msg:'SUA RECEITA ATUAL ESTÁ VENCIDA. A RETIRADA SERÁ REGISTRADA, MAS RENOVE A RECEITA.', ok:'REGISTRAR MESMO ASSIM', cancel:'CANCELAR', onOk:go_});
+  else go_();
+}
+function delRec(id){ confirmBox('EXCLUIR RETIRADA?','TEM CERTEZA QUE DESEJA EXCLUIR ESTE REGISTRO?','EXCLUIR',() => mutate(() => { S.records = S.records.filter(r => r.id !== id); }, 'RETIRADA EXCLUÍDA')); }
+
+function ics(id){
+  const r = rec(id), {due} = dueInfo(r);
+  const dt = ymd(due).replace(/-/g,''), end = ymd(addDays(due,1)).replace(/-/g,'');
+  const txt = ['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//FARPOP//PT','BEGIN:VEVENT',`UID:${r.id}@farpop`,`DTSTAMP:${dt}T000000Z`,`DTSTART;VALUE=DATE:${dt}`,`DTEND;VALUE=DATE:${end}`,
+    `SUMMARY:Retirar ${r.type} - ${r.pharmacy}`,'BEGIN:VALARM','TRIGGER:-P1D','ACTION:DISPLAY','DESCRIPTION:Retirada amanhã','END:VALARM','END:VEVENT','END:VCALENDAR'].join('\r\n');
+  download(`farpop-${dt}.ics`, txt, 'text/calendar');
+}
+function download(name, text, type){
+  if(isNative()){ FarpopNative.saveFile(name, text).catch(() => toast('NÃO FOI POSSÍVEL GERAR O ARQUIVO')); return; }
+  const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([text], {type})); a.download = name; document.body.appendChild(a); a.click(); a.remove();
+}
+
+/* ===== AJUSTES ===== */
+function setNum(k, v){ v = Math.max(k==='renewAlert'?0:1, parseInt(v)||0); mutate(() => { S.settings[k] = v; }, 'AJUSTE SALVO'); }
+function addPharm(){ const v = $('#newPharm').value.trim().toUpperCase(); if(!v) return; if(S.settings.pharmacies.includes(v)) return toast('JÁ EXISTE'); mutate(() => S.settings.pharmacies.push(v)); }
+function rmPharm(i){ mutate(() => S.settings.pharmacies.splice(i,1), 'FARMÁCIA REMOVIDA'); }
+function addMed(){ const v = $('#newMed').value.trim(); if(!v) return; if(S.settings.meds.includes(v)) return toast('JÁ EXISTE'); mutate(() => S.settings.meds.push(v)); }
+function rmMed(i){ mutate(() => { ui.draft = null; S.settings.meds.splice(i,1); }, 'MEDICAMENTO REMOVIDO DA LISTA'); }
+function exportData(){
+  const d = ymd(new Date()); try{ localStorage.setItem('farpop_lastbackup', d); }catch(_){}
+  download(`farpop-backup-${d}.json`, JSON.stringify(S, null, 2), 'application/json');
+  toast('BACKUP GERADO'); render();
+}
+$('#fileImport').addEventListener('change', e => {
+  const f = e.target.files[0]; if(!f) return;
+  const rd = new FileReader();
+  rd.onload = () => {
+    try{
+      const d = JSON.parse(rd.result);
+      if(!Array.isArray(d.recipes) || !Array.isArray(d.records)) throw 0;
+      const n = normalize(d);
+      modal({title:'IMPORTAR BACKUP?', msg:`${n.recipes.length} RECEITA(S) E ${n.records.length} RETIRADA(S). OS DADOS ATUAIS SERÃO SUBSTITUÍDOS (UMA CÓPIA DE SEGURANÇA É GUARDADA).`, type:'info', icon:'fa-file-import', ok:'IMPORTAR', cancel:'CANCELAR',
+        onOk:() => { try{localStorage.setItem(BAK, JSON.stringify(S));}catch(_){} const old = S; S = n; stampDiff(old, S); ui.draft = null; save(); render(); toast('DADOS IMPORTADOS'); }});
+    }catch(_){ modal({title:'ARQUIVO INVÁLIDO', msg:'NÃO FOI POSSÍVEL LER ESTE BACKUP.', type:'danger', icon:'fa-circle-exclamation'}); }
+    e.target.value = '';
+  };
+  rd.readAsText(f);
+});
+function wipe(){ confirmBox('APAGAR TUDO?','TODAS AS RECEITAS, RETIRADAS E AJUSTES SERÃO REMOVIDOS' + (syncOn() ? ' EM TODOS OS APARELHOS SINCRONIZADOS.' : '.') + ' VOCÊ PODE DESFAZER LOGO EM SEGUIDA OU RESTAURAR UM BACKUP.','APAGAR TUDO',
+  () => { try{localStorage.setItem(BAK, JSON.stringify(S));}catch(_){} mutate(() => { S.recipes = []; S.records = []; S.settings = defaults().settings; ui.draft = null; }, 'DADOS APAGADOS'); }); }
+
+/* ===== NOTIFICAÇÕES ===== */
+const isNative = () => !!(window.FarpopNative && window.FarpopNative.isNative);
+const notifSupported = () => isNative() || ('Notification' in window);
+const notifPerm = () => isNative() ? (ui.nativePerm || 'default') : ('Notification' in window ? Notification.permission : 'denied');
+const lastBackup = () => { try{ return localStorage.getItem('farpop_lastbackup'); }catch(_){ return null; } };
+const syncOn = () => !!(window.Sync && Sync.info().connected);
+
+async function askNotif(){
+  if(!notifSupported()) return modal({title:'NÃO SUPORTADO', msg:'ESTE NAVEGADOR NÃO SUPORTA NOTIFICAÇÕES.'});
+  let p;
+  try{ p = isNative() ? await FarpopNative.request() : await Notification.requestPermission(); }catch(e){ p = 'denied'; }
+  if(isNative()) ui.nativePerm = p;
+  if(p === 'granted'){ await notify('FARPOP', 'ALERTAS ATIVADOS!'); checkAlerts(); scheduleNative(); }
+  else modal({title:'PERMISSÃO NEGADA', msg:'ATIVE AS NOTIFICAÇÕES NAS CONFIGURAÇÕES DO APARELHO OU DO NAVEGADOR.', type:'danger', icon:'fa-circle-exclamation'});
+  render();
+}
+async function notify(title, body){
+  if(isNative()){ try{ await FarpopNative.now(title, body); return; }catch(e){ /* cai no aviso na tela */ } }
+  try{ new Notification(title, {body, icon:'icon-192.png'}); }
+  catch(e){ toast(body); }
+}
+function testNotif(){
+  if(!notifSupported()) return modal({title:'NÃO SUPORTADO', msg:'ESTE NAVEGADOR NÃO SUPORTA NOTIFICAÇÕES.'});
+  notifPerm() === 'granted' ? notify('TESTE - FARPOP', 'FUNCIONANDO PERFEITAMENTE NO SEU DISPOSITIVO!') : askNotif();
+}
+/* No navegador/PWA: um resumo por dia ao abrir o app. */
+function checkAlerts(){
+  if(isNative() || !('Notification' in window) || Notification.permission !== 'granted') return;
+  const p = pending(), c = k => p.filter(r => dueInfo(r).k === k).length;
+  const late = c('late'), tod = c('today'), tom = c('tomorrow');
+  const parts = [];
+  if(late) parts.push(`${late} ATRASADA(S)`); if(tod) parts.push(`${tod} PARA HOJE`); if(tom) parts.push(`${tom} PARA AMANHÃ`);
+  const lr = latestRecipe(); if(lr){ const ri = recipeInfo(lr); if(ri.left >= 0 && ri.left <= S.settings.renewAlert) parts.push(`RECEITA VENCE EM ${ri.left} DIA(S)`); else if(ri.left < 0) parts.push('RECEITA VENCIDA'); }
+  if(!parts.length) return;
+  let log = {}; try{ log = JSON.parse(localStorage.getItem(NOTIF) || '{}'); }catch(_){}
+  const t = ymd(new Date()), sig = parts.join('|');
+  if(log.date === t && log.sig === sig) return;
+  notify('FARPOP - LEMBRETE DE RETIRADA', parts.join(' · '));
+  try{ localStorage.setItem(NOTIF, JSON.stringify({date:t, sig})); }catch(_){}
+}
+/* No APK: lembretes agendados no Android (funcionam com o app fechado). */
+function reminders(){
+  const out = [], now = Date.now();
+  const at = (d, h = 9) => { const x = new Date(d); x.setHours(h, 0, 0, 0); return x.getTime(); };
+  const add = (key, title, body, ts) => { if(ts > now) out.push({ key, title, body, at: ts }); };
+  pending().forEach(r => {
+    const { due } = dueInfo(r), what = `${r.type} (${r.pharmacy})`;
+    add(r.id + ':d1', 'FARPOP - AMANHÃ', `AMANHÃ: RETIRAR ${what}`, at(addDays(due, -1)));
+    add(r.id + ':d0', 'FARPOP - HOJE', `HOJE É O DIA DE RETIRAR ${what}`, at(due));
+    for(let n = 1; n <= 3; n++) add(r.id + ':l' + n, 'FARPOP - RETIRADA ATRASADA', `ATRASADA: ${what}. MARQUE OK AO RETIRAR.`, at(addDays(due, n)));
+  });
+  const lr = latestRecipe();
+  if(lr){
+    const exp = addDays(parse(lr.date), S.settings.recipeValidity), ra = S.settings.renewAlert;
+    add('rx:renew', 'FARPOP - RECEITA', `SUA RECEITA VENCE EM ${ra} DIAS. HORA DE RENOVAR.`, at(addDays(exp, -ra)));
+    add('rx:week', 'FARPOP - RECEITA', 'SUA RECEITA VENCE EM 7 DIAS.', at(addDays(exp, -7)));
+    add('rx:exp', 'FARPOP - RECEITA', 'SUA RECEITA VENCE HOJE.', at(exp));
+  }
+  return out;
+}
+let nTimer = null;
+function scheduleNative(){
+  if(!isNative() || notifPerm() !== 'granted') return;
+  clearTimeout(nTimer);
+  nTimer = setTimeout(() => { FarpopNative.schedule(reminders()).catch(() => {}); }, 800);
+}
+
+/* ===== SINCRONIZAÇÃO (Firebase) - a parte de rede fica em sync.bundle.js ===== */
+const syncMeta = { status:'off', info:'', last:0 };
+window.SyncBridge = {
+  getState: () => S,
+  setState: n => {
+    S = n; saveLocal(); scheduleNative();
+    const el = document.activeElement;
+    if(el && ['INPUT','TEXTAREA','SELECT'].includes(el.tagName)) renderNav(); else render();
+  },
+  normalize, merge: mergeStates,
+  onStatus: (st, info) => { syncMeta.status = st; syncMeta.info = info || ''; if(st === 'ok') syncMeta.last = Date.now(); paintSync(); }
+};
+function syncErr(c){
+  c = String(c || '');
+  if(/operation-not-allowed|admin-restricted/.test(c)) return 'ATIVE O LOGIN ANÔNIMO NO FIREBASE (AUTHENTICATION > SIGN-IN METHOD > ANONYMOUS).';
+  if(/permission-denied/.test(c)) return 'ACESSO NEGADO PELAS REGRAS DO FIRESTORE. PUBLIQUE O ARQUIVO firestore.rules.';
+  if(/api-key|invalid-api/.test(c)) return 'CHAVE DE API (apiKey) INVÁLIDA. CONFIRA O firebaseConfig.';
+  if(/not-found|failed-precondition/.test(c)) return 'CRIE O BANCO FIRESTORE NO CONSOLE DO FIREBASE.';
+  if(/dados-invalidos/.test(c)) return 'OS DADOS NA NUVEM ESTÃO ILEGÍVEIS.';
+  if(/network|unavailable|offline/.test(c)) return 'SEM CONEXÃO COM A NUVEM.';
+  return 'ERRO: ' + c;
+}
+function paintSync(){
+  const st = syncMeta.status;
+  const m = {off:['off','fa-cloud','SEM SYNC'], syncing:['busy','fa-arrows-rotate','SINCRONIZANDO'], ok:['ok','fa-circle-check','SINCRONIZADO'],
+    offline:['err','fa-link-slash','OFFLINE'], error:['err','fa-triangle-exclamation','ERRO SYNC']}[st] || ['off','fa-cloud','SEM SYNC'];
+  const chip = $('#syncChip');
+  if(chip){ chip.className = 'sync-chip ' + m[0]; chip.innerHTML = `<i class="fa-solid ${m[1]}"></i>${m[2]}`; }
+  const box = $('#syncState');
+  if(box){
+    const t = syncMeta.last ? new Date(syncMeta.last).toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'}) : '';
+    const extra = (st === 'error' || st === 'offline') && syncMeta.info ? `<br><span class="hint" style="color:inherit">${esc(syncErr(syncMeta.info))}</span>` : '';
+    box.innerHTML = `<i class="fa-solid ${m[1]}"></i><div>${m[2]}${st === 'ok' && t ? ' · ' + t : ''}${extra}</div>`;
+  }
+}
+function syncCard(){
+  if(!window.Sync) return `<div class="card fade"><div class="card-t"><i class="fa-solid fa-cloud"></i> SINCRONIZAÇÃO</div>
+    <div class="hint">MÓDULO DE SINCRONIZAÇÃO NÃO CARREGADO. GERE O BUILD DO PROJETO (npm run build) OU USE O APK / A VERSÃO PUBLICADA.</div></div>`;
+  const inf = Sync.info();
+  if(!inf.connected) return `<div class="card fade"><div class="card-t"><i class="fa-solid fa-cloud"></i> SINCRONIZAÇÃO ENTRE APARELHOS</div><div class="form">
+    <div class="hint">MANTÉM CELULAR, TABLET E PC COM AS MESMAS INFORMAÇÕES, ATUALIZADAS EM TEMPO REAL.<br>• <b>1º APARELHO:</b> COLE O BLOCO <b>firebaseConfig</b> DO SEU PROJETO FIREBASE.<br>• <b>DEMAIS APARELHOS:</b> COLE O <b>CÓDIGO DE PAREAMENTO</b> COPIADO DO 1º.<br>OS DADOS QUE JÁ EXISTEM NESTE APARELHO SERÃO MESCLADOS COM OS DA NUVEM.</div>
+    <textarea id="syncInput" spellcheck="false" autocapitalize="off" autocomplete="off" placeholder="COLE AQUI..."></textarea>
+    <button class="btn btn-p btn-block" onclick="syncConnect()"><i class="fa-solid fa-link"></i> CONECTAR</button></div></div>`;
+  return `<div class="card fade"><div class="card-t"><i class="fa-solid fa-cloud"></i> SINCRONIZAÇÃO</div><div class="form">
+    <div class="preview" id="syncState"></div>
+    <div class="hint">PROJETO: ${esc(inf.project)}. PARA CONECTAR OUTRO APARELHO, COPIE O CÓDIGO DE PAREAMENTO E COLE NELE. TRATE-O COMO UMA SENHA.</div>
+    <button class="btn btn-p btn-block" onclick="copyPair()"><i class="fa-solid fa-copy"></i> COPIAR CÓDIGO DE PAREAMENTO</button>
+    <button class="btn btn-s btn-block" onclick="Sync.syncNow()"><i class="fa-solid fa-arrows-rotate"></i> SINCRONIZAR AGORA</button>
+    <button class="btn btn-g btn-block" style="color:var(--bad)" onclick="syncOff()"><i class="fa-solid fa-link-slash"></i> DESCONECTAR ESTE APARELHO</button></div></div>`;
+}
+async function syncConnect(){
+  const el = $('#syncInput'), v = el ? (el.value || '').trim() : '';
+  if(!v) return toast('COLE A CONFIGURAÇÃO OU O CÓDIGO');
+  try{
+    if(v.startsWith('FARPOP1.')) await Sync.join(v); else await Sync.connectNew(v);
+    render(); toast('CONECTANDO À NUVEM...');
+  }catch(e){ modal({title:'NÃO FOI POSSÍVEL CONECTAR', msg: e.message || String(e), type:'danger', icon:'fa-circle-exclamation'}); }
+}
+async function copyPair(){
+  const code = Sync.pairing(); if(!code) return;
+  try{ await navigator.clipboard.writeText(code); toast('CÓDIGO COPIADO. COLE NO OUTRO APARELHO.'); }
+  catch(_){
+    if(isNative()) FarpopNative.shareText(code).catch(() => {});
+    else window.prompt('COPIE O CÓDIGO DE PAREAMENTO:', code);
+  }
+}
+function syncOff(){
+  modal({title:'DESCONECTAR?', msg:'ESTE APARELHO DEIXA DE SINCRONIZAR. OS DADOS CONTINUAM SALVOS AQUI E NA NUVEM.', type:'warning', icon:'fa-link-slash', ok:'DESCONECTAR', cancel:'CANCELAR', danger:true,
+    onOk:() => { Sync.disconnect(); render(); toast('DESCONECTADO'); }});
+}
+
+document.addEventListener('visibilitychange', () => {
+  if(document.hidden) return;
+  const el = document.activeElement;
+  if(!(el && ['INPUT','TEXTAREA','SELECT'].includes(el.tagName))) render();
+  checkAlerts(); scheduleNative();
+  if(window.Sync) Sync.resume();
+});
+
+/* ===== INIT (roda depois do sync.bundle.js, que é carregado com defer) ===== */
+function init(){
+  render(); checkAlerts();
+  if('serviceWorker' in navigator && /^https?:$/.test(location.protocol) && !isNative()) navigator.serviceWorker.register('sw.js').catch(() => {});
+  if(isNative()) FarpopNative.permission().then(p => { ui.nativePerm = p; scheduleNative(); render(); }).catch(() => {});
+  if(window.Sync) Sync.start();
+}
+if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
+</script>
+</body>
+</html>
